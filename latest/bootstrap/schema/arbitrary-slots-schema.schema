@@ -1,0 +1,89 @@
+# File: /Makefile
+# Project: docker-openldap
+# File Created: 24-06-2021 04:03:49
+# Author: Clay Risser <email@clayrisser.com>
+# -----
+# Last Modified: 14-07-2021 21:29:44
+# Modified By: Clay Risser <email@clayrisser.com>
+# -----
+# Silicon Hills LLC (c) Copyright 2021
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# -----
+#
+# modeled after willeke.com oid tree
+# https://ldapwiki.com/wiki/How%20To%20Get%20Your%20Own%20OID
+
+objectIdentifier SiliconHillsLLC 1.3.6.1.4.1.57257
+objectIdentifier AttributeTypes  SiliconHillsLLC:2.1
+objectIdentifier ObjectClasses   SiliconHillsLLC:2.2
+
+attributetype ( AttributeTypes:10
+        NAME 'slot0'
+        DESC 'slot 0'
+        EQUALITY caseIgnoreMatch
+        SUBSTR caseIgnoreSubstringsMatch
+        SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{1024}
+        SINGLE-VALUE )
+
+attributetype ( AttributeTypes:11
+        NAME 'slot1'
+        DESC 'slot 1'
+        SUP slot0 )
+
+attributetype ( AttributeTypes:12
+        NAME 'slot2'
+        DESC 'slot 2'
+        SUP slot0 )
+
+attributetype ( AttributeTypes:13
+        NAME 'slot3'
+        DESC 'slot 3'
+        SUP slot0 )
+
+attributetype ( AttributeTypes:14
+        NAME 'slot4'
+        DESC 'slot 4'
+        SUP slot0 )
+
+attributetype ( AttributeTypes:15
+        NAME 'slot5'
+        DESC 'slot 5'
+        SUP slot0 )
+
+attributetype ( AttributeTypes:16
+        NAME 'slot6'
+        DESC 'slot 6'
+        SUP slot0 )
+
+attributetype ( AttributeTypes:17
+        NAME 'slot7'
+        DESC 'slot 7'
+        SUP slot0 )
+
+attributetype ( AttributeTypes:18
+        NAME 'slot8'
+        DESC 'slot 8'
+        SUP slot0 )
+
+attributetype ( AttributeTypes:19
+        NAME 'slot9'
+        DESC 'slot 9'
+        SUP slot0 )
+
+objectclass ( ObjectClasses:1
+    NAME 'arbitrarySlots'
+    DESC '10 slots for arbitrary data'
+    AUXILIARY
+    SUP top
+    MAY ( slot0 $ slot1 $ slot2 $ slot3 $ slot4 $ slot5 $ slot6 $ slot7 $ slot8 $ slot9 ) )
