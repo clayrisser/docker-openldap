@@ -20,8 +20,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-NAME := openldap
-REGISTRY := codejamninja
+NAME := docker-openldap
+REGISTRY := registry.gitlab.com/silicon-hills/community
 VERSION := 0.0.1
 IMAGE := $(REGISTRY)/$(NAME)
 

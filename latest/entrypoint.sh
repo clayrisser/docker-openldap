@@ -9,7 +9,7 @@ __ldapadd() {
     fi
 }
 
-__init() {
+__hash_password() {
     until __ldapadd
     do
         echo trying ldapadd again in 60 seconds . . .
@@ -17,10 +17,8 @@ __init() {
     done
 }
 
-__init &
-
-if [ "$LDAP_DEBUG" = "true" ]; then
-    exec /container/tool/run -l debug --copy-service $@
-else
-    exec /container/tool/run -l info --copy-service $@
+if [ "$LDAP_HASH_PASSWORD" = "true" ]; then
+    __hash_password &
 fi
+
+exec /container/tool/run --copy-service $@

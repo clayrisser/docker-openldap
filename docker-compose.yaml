@@ -11,8 +11,8 @@ services:
       LDAP_BACKEND: 'mdb'
       LDAP_BASE_DN: ''
       LDAP_CONFIG_PASSWORD: config
-      LDAP_DEBUG: 'false'
       LDAP_DOMAIN: example.org
+      LDAP_HASH_PASSWORD: 'true'
       LDAP_LOG_LEVEL: '256'
       LDAP_ORGANISATION: 'Example Inc.'
       LDAP_READONLY_USER: 'false'

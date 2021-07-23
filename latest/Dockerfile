@@ -7,3 +7,5 @@ ADD entrypoint.sh /usr/local/sbin/entrypoint
 RUN chmod +x /usr/local/sbin/entrypoint
 
 ENTRYPOINT [ "/bin/sh", "/usr/local/sbin/entrypoint" ]
+
+ENV LDAP_HASH_PASSWORD=true
