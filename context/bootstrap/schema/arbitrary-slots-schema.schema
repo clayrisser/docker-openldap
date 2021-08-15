@@ -1,9 +1,9 @@
-# File: /Makefile
+# File: /context/bootstrap/schema/arbitrary-slots-schema.schema
 # Project: docker-openldap
-# File Created: 24-06-2021 04:03:49
+# File Created: 15-08-2021 01:53:18
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 14-07-2021 21:29:44
+# Last Modified: 15-08-2021 03:57:52
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
 # Silicon Hills LLC (c) Copyright 2021

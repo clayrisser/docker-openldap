@@ -1,0 +1,16 @@
+docker-build:
+  image: registry.gitlab.com/silicon-hills/community/ci-images/docker:0.0.1
+  stage: build
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+  script:
+    - |
+      TAG=latest
+      if [[ "$CI_COMMIT_BRANCH" != "$CI_DEFAULT_BRANCH" ]]; then
+        TAG=$CI_COMMIT_REF_SLUG
+        ARGS=main
+      fi
+    - make -s build ARGS="$ARGS" TAG="$TAG"
+    - make -s push ARGS="$ARGS" TAG="$TAG"

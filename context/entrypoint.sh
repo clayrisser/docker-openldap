@@ -1,9 +1,11 @@
-# File: /docker-build.yaml
+#!/bin/sh
+
+# File: /context/entrypoint.sh
 # Project: docker-openldap
 # File Created: 15-08-2021 01:53:18
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 15-08-2021 04:00:24
+# Last Modified: 15-08-2021 03:59:51
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
 # Silicon Hills LLC (c) Copyright 2021
@@ -20,20 +22,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-version: "2"
+__ldapadd() {
+    ldapadd -c -Y EXTERNAL -H ldapi:/// -f /container/service/slapd/assets/ppolicy.ldif 2>&1 | \
+        tee /tmp/ldapadd.log
+    cat /tmp/ldapadd.log | grep -q "Can't contact LDAP server"
+    if [ "$?" = "0" ]; then
+        false
+    fi
+}
 
-services:
-  main:
-    image: ${IMAGE}:${TAG}
-    build:
-      context: context
-      dockerfile: Dockerfile
-  major:
-    extends: main
-    image: ${IMAGE}:${MAJOR}
-  minor:
-    extends: main
-    image: ${IMAGE}:${MAJOR}.${MINOR}
-  patch:
-    extends: main
-    image: ${IMAGE}:${MAJOR}.${MINOR}.${PATCH}
+__hash_password() {
+    until __ldapadd
+    do
+        echo trying ldapadd again in 60 seconds . . .
+        sleep 60
+    done
+}
+
+if [ "$LDAP_HASH_PASSWORD" = "true" ]; then
+    __hash_password &
+fi
+
+exec /container/tool/run --copy-service $@

@@ -1,0 +1,26 @@
+root = true
+
+[*]
+end_of_line = lf
+indent_size = 2
+indent_style = space
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.md]
+charset = utf-8
+trim_trailing_whitespace = false
+
+[{m,M}akefile]
+charset = utf-8
+indent_style = tab
+[*.mk]
+charset = utf-8
+indent_style = tab
+
+[Dockerfile]
+charset = utf-8
+indent_size = 4
+
+[*.tf]
+charset = utf-8

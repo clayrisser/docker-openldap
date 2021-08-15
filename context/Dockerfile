@@ -1,9 +1,9 @@
-# File: /docker-build.yaml
+# File: /context/Dockerfile
 # Project: docker-openldap
 # File Created: 15-08-2021 01:53:18
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 15-08-2021 04:00:24
+# Last Modified: 15-08-2021 03:58:00
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
 # Silicon Hills LLC (c) Copyright 2021
@@ -20,20 +20,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-version: "2"
+FROM osixia/openldap:1.5.0
 
-services:
-  main:
-    image: ${IMAGE}:${TAG}
-    build:
-      context: context
-      dockerfile: Dockerfile
-  major:
-    extends: main
-    image: ${IMAGE}:${MAJOR}
-  minor:
-    extends: main
-    image: ${IMAGE}:${MAJOR}.${MINOR}
-  patch:
-    extends: main
-    image: ${IMAGE}:${MAJOR}.${MINOR}.${PATCH}
+ADD ppolicy.ldif /container/service/slapd/assets
+ADD bootstrap /container/service/slapd/assets/config/bootstrap
+ADD entrypoint.sh /usr/local/sbin/entrypoint
+
+RUN chmod +x /usr/local/sbin/entrypoint
+
+ENTRYPOINT [ "/bin/sh", "/usr/local/sbin/entrypoint" ]
+
+ENV LDAP_HASH_PASSWORD=true

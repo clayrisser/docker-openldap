@@ -27,22 +27,6 @@ IMAGE := $(REGISTRY)/$(NAME)
 
 include docker.mk
 
-.PHONY: postgres
-postgres:
-	@docker-compose up $(ARGS) postgres
-
-.PHONY: keycloak
-keycloak:
-	@docker-compose up $(ARGS) keycloak
-
-.PHONY: redis
-redis:
-	@docker-compose up $(ARGS) redis
-
-.PHONY: deps
-deps:
-	@docker-compose up $(ARGS) deps
-
 .PHONY: ~%
 ~%:
 	@$(MAKE) -s $(shell echo $@ | $(SED) 's/^~//g') ARGS="-d"

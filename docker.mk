@@ -3,7 +3,7 @@
 # File Created: 24-06-2021 04:03:49
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 14-07-2021 21:41:11
+# Last Modified: 15-08-2021 04:00:01
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
 # Silicon Hills LLC (c) Copyright 2021
@@ -21,11 +21,12 @@
 # limitations under the License.
 
 TAG ?= latest
+CONTAINER_NAME ?= $(shell echo $(NAME) | $(SED) 's|\/|_|g')
 MAJOR := $(shell echo $(VERSION) | cut -d. -f1)
 MINOR := $(shell echo $(VERSION) | cut -d. -f2)
 PATCH := $(shell echo $(VERSION) | cut -d. -f3)
 
-export PLATFORM := $(shell node -e "process.stdout.write(process.platform)")
+export PLATFORM := $(shell node -e "process.stdout.write(process.platform)" 2>/dev/null || echo linux)
 export NIX_ENV := $(shell which sed | grep -qE "^/nix/store" && echo true|| echo false)
 ifeq ($(PLATFORM),win32)
 	BANG := !
