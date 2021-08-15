@@ -1,5 +1,13 @@
 {
-  "cSpell.words": [],
+  "cSpell.words": [
+    "attributetype",
+    "changetype",
+    "cleartext",
+    "objectclass",
+    "openldap",
+    "ppolicy",
+    "risser"
+  ],
   "psi-header.variables": [["projectCreationYear", "2021"]],
   "psi-header.config": {
     "author": "Clay Risser",
