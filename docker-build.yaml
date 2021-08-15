@@ -2,7 +2,7 @@ version: "2"
 
 services:
   build:
-    image: ${IMAGE}:latest
+    image: ${IMAGE}:${TAG}
     build:
       context: latest
       dockerfile: Dockerfile
