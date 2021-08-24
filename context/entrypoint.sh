@@ -5,7 +5,7 @@
 # File Created: 15-08-2021 01:53:18
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 23-08-2021 22:20:04
+# Last Modified: 24-08-2021 12:48:25
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
 # Silicon Hills LLC (c) Copyright 2021
@@ -23,7 +23,7 @@
 # limitations under the License.
 
 __ldapadd() {
-    ldapadd -c -Y EXTERNAL -H ldapi:/// -f /container/service/slapd/assets/ppolicy.ldif 2>&1 | \
+    ldapadd -c -Y EXTERNAL -H ldapi:/// -f $1 2>&1 | \
         tee /tmp/ldapadd.log
     cat /tmp/ldapadd.log | grep -q "Can't contact LDAP server"
     if [ "$?" = "0" ]; then
@@ -31,16 +31,21 @@ __ldapadd() {
     fi
 }
 
-__hash_password() {
-    until __ldapadd
-    do
-        echo trying ldapadd again in 60 seconds . . .
-        sleep 60
+__load_ldif() {
+    cp -r /container/service/slapd/assets/config/bootstrap/ldif /container/ldif
+    mkdir -p /container/ldif
+    if [ "$LDAP_HASH_PASSWORD" = "true" ]; then
+        cp /container/service/slapd/assets/ppolicy.ldif /container/ldif/ppolicy.ldif
+    fi
+    for f in $(find /container/ldif -type f -name '*.ldif'); do
+        until __ldapadd $f
+        do
+            echo trying ldapadd again in 30 seconds . . .
+            sleep 30
+        done
     done
 }
 
-if [ "$LDAP_HASH_PASSWORD" = "true" ]; then
-    __hash_password &
-fi
+__load_ldif &
 
 exec /container/tool/run $@
