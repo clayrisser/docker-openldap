@@ -5,7 +5,7 @@
 # File Created: 15-08-2021 01:53:18
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 15-08-2021 03:59:51
+# Last Modified: 23-08-2021 22:20:04
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
 # Silicon Hills LLC (c) Copyright 2021
@@ -43,4 +43,4 @@ if [ "$LDAP_HASH_PASSWORD" = "true" ]; then
     __hash_password &
 fi
 
-exec /container/tool/run --copy-service $@
+exec /container/tool/run $@
