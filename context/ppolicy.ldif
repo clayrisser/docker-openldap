@@ -1,3 +1,8 @@
+# https://help.univention.com/t/ucs-and-security-hardening/6059
+# https://www.redpill-linpro.com/techblog/2016/08/16/ldap-password-hash.html
+# https://www.openldap.org/lists/openldap-technical/201608/msg00078.html
+# https://github.com/osixia/docker-openldap/issues/208
+
 dn: cn=module{0},cn=config
 changetype: modify
 add: olcModuleLoad
@@ -8,3 +13,9 @@ objectClass: olcOverlayConfig
 objectClass: olcPPolicyConfig
 olcOverlay: {2}ppolicy
 olcPPolicyHashCleartext: TRUE
+
+dn: olcDatabase={-1}frontend,cn=config
+changetype: modify
+replace: olcPasswordHash
+olcPasswordHash: {CRYPT}
+olcPasswordCryptSaltFormat: $6$%.16s
