@@ -2,20 +2,25 @@
 # https://www.redpill-linpro.com/techblog/2016/08/16/ldap-password-hash.html
 # https://www.openldap.org/lists/openldap-technical/201608/msg00078.html
 # https://github.com/osixia/docker-openldap/issues/208
+# https://serverfault.com/questions/571928/how-do-you-set-password-hash-for-openldap
 
 dn: cn=module{0},cn=config
 changetype: modify
 add: olcModuleLoad
 olcModuleLoad: ppolicy
 
-dn: olcOverlay={2}ppolicy,olcDatabase={1}mdb,cn=config
+dn: olcOverlay={2}ppolicy,olcDatabase={1}{{ LDAP_BACKEND }},cn=config
 objectClass: olcOverlayConfig
 objectClass: olcPPolicyConfig
 olcOverlay: {2}ppolicy
 olcPPolicyHashCleartext: TRUE
 
+# dn: olcDatabase={-1}frontend,cn=config
+# changetype: modify
+# replace: olcPasswordHash
+# olcPasswordHash: {CRYPT}
+
 dn: olcDatabase={-1}frontend,cn=config
 changetype: modify
-replace: olcPasswordHash
-olcPasswordHash: {CRYPT}
+add: olcPasswordCryptSaltFormat
 olcPasswordCryptSaltFormat: $6$%.16s
