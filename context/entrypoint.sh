@@ -5,7 +5,7 @@
 # File Created: 15-08-2021 01:53:18
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 24-08-2021 12:48:25
+# Last Modified: 01-09-2021 22:46:43
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
 # Silicon Hills LLC (c) Copyright 2021
@@ -32,11 +32,33 @@ __ldapadd() {
 }
 
 __load_ldif() {
-    cp -r /container/service/slapd/assets/config/bootstrap/ldif /container/ldif
-    mkdir -p /container/ldif
-    if [ "$LDAP_HASH_PASSWORD" = "true" ]; then
-        cp /container/service/slapd/assets/ppolicy.ldif /container/ldif/ppolicy.ldif
+    if [ "$LDAP_BASE_DN" = "" ]; then
+        export LDAP_BASE_DN=$(echo dc=$(echo $LDAP_DOMAIN | sed 's|\..*$||g'),dc=$(echo $LDAP_DOMAIN | sed 's|^.*\.||g'))
     fi
+    mkdir -p /etc/confd/conf.d
+    mkdir -p /etc/confd/templates
+    for f in $(ls /container/service/slapd/assets/config/bootstrap/ldif | grep -E "\.ldif\.tmpl$"); do
+        mkdir -p $(echo "/container/ldif/$f" | sed 's|\/[^\/]*$||g')
+        cp "/container/service/slapd/assets/config/bootstrap/ldif/${f}" "/etc/confd/templates/${f}"
+        cat <<EOF > "/etc/confd/conf.d/${f}.toml"
+[template]
+src  = "${f}"
+dest = "/container/ldif/$(echo $f | sed 's|\.tmpl$||g')"
+EOF
+    done
+    for f in $(ls /container/service/slapd/assets/config/bootstrap/ldif | grep -E "\.ldif$"); do
+        mkdir -p $(echo "/container/ldif/$f" | sed 's|\/[^\/]*$||g')
+        cp /container/service/slapd/assets/config/bootstrap/ldif/$f /container/ldif/$f
+    done
+    if [ "$LDAP_HASH_PASSWORD" != "" ] && [ "$LDAP_HASH_PASSWORD" != "false" ]; then
+        cp /container/service/slapd/assets/ppolicy.ldif.tmpl /etc/confd/templates/ppolicy.ldif.tmpl
+        cat <<EOF > /etc/confd/conf.d/ppolicy.ldif.toml
+[template]
+src  = "ppolicy.ldif.tmpl"
+dest = "/container/ldif/10-ppolicy.ldif"
+EOF
+    fi
+    confd -onetime -backend env
     for f in $(find /container/ldif -type f -name '*.ldif'); do
         until __ldapadd $f
         do

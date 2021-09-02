@@ -22,5 +22,9 @@ indent_style = tab
 charset = utf-8
 indent_size = 4
 
+[*.sh]
+charset = utf-8
+indent_size = 4
+
 [*.tf]
 charset = utf-8

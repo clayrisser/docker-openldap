@@ -1,0 +1,82 @@
+# https://github.com/osixia/docker-openldap/issues/208
+# https://github.com/osixia/docker-openldap/issues/48
+# https://help.univention.com/t/ucs-and-security-hardening/6059
+# https://serverfault.com/questions/571928/how-do-you-set-password-hash-for-openldap
+# https://www.openldap.org/lists/openldap-technical/201608/msg00078.html
+# https://www.redpill-linpro.com/techblog/2016/08/16/ldap-password-hash.html
+
+dn: cn=module{0},cn=config
+changetype: modify
+add: olcModuleLoad
+olcModuleLoad: ppolicy
+
+dn: cn=config
+changetype: modify
+{{- if (eq (toUpper (getenv "LDAP_HASH_PASSWORD")) "SSHA") }}
+replace: olcPasswordHash
+olcPasswordHash: {SSHA}
+{{- else if (eq (toUpper (getenv "LDAP_HASH_PASSWORD")) "CRYPT") }}
+replace: olcPasswordHash
+olcPasswordHash: {CRYPT}
+{{- else if (eq (toUpper (getenv "LDAP_HASH_PASSWORD")) "SHA256CRYPT") }}
+replace: olcPasswordCryptSaltFormat
+olcPasswordCryptSaltFormat: $5$%.16s
+-
+replace: olcPasswordHash
+olcPasswordHash: {CRYPT}
+{{- else }}
+replace: olcPasswordCryptSaltFormat
+olcPasswordCryptSaltFormat: $6$%.16s
+-
+replace: olcPasswordHash
+olcPasswordHash: {CRYPT}
+{{- end }}
+
+dn: olcDatabase={-1}frontend,cn=config
+changetype: modify
+{{- if (eq (toUpper (getenv "LDAP_HASH_PASSWORD")) "SSHA") }}
+replace: olcPasswordHash
+olcPasswordHash: {SSHA}
+{{- else if (eq (toUpper (getenv "LDAP_HASH_PASSWORD")) "CRYPT") }}
+replace: olcPasswordHash
+olcPasswordHash: {CRYPT}
+{{- else if (eq (toUpper (getenv "LDAP_HASH_PASSWORD")) "SHA256CRYPT") }}
+replace: olcPasswordHash
+olcPasswordHash: {CRYPT}
+{{- else }}
+replace: olcPasswordHash
+olcPasswordHash: {CRYPT}
+{{- end }}
+
+dn: olcOverlay={2}ppolicy,olcDatabase={1}{{ getenv "LDAP_BACKEND" }},cn=config
+objectClass: olcOverlayConfig
+objectClass: olcPPolicyConfig
+olcOverlay: {2}ppolicy
+olcPPolicyHashCleartext: TRUE
+olcPPolicyDefault: cn=default,ou=pwpolicies,{{ getenv "LDAP_BASE_DN" }}
+
+dn: ou=pwpolicies,{{ getenv "LDAP_BASE_DN" }}
+objectclass: organizationalUnit
+objectclass: top
+ou: pwpolicies
+
+dn: cn=default,ou=ppolicy,{{ getenv "LDAP_BASE_DN" }}
+changetype: add
+objectClass: device
+objectClass: pwdPolicy
+objectClass: top
+cn: default
+pwdAllowUserChange: TRUE
+pwdAttribute: 2.5.4.35
+pwdCheckQuality: 0
+pwdExpireWarning: 3600
+pwdFailureCountInterval: 0
+pwdGraceAuthNLimit: 0
+pwdInHistory: 0
+pwdLockout: TRUE
+pwdLockoutDuration: 3600
+pwdMaxAge: 2592000
+pwdMaxFailure: 5
+pwdMinLength: 6
+pwdMustChange: FALSE
+pwdSafeModify: FALSE

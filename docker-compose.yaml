@@ -3,7 +3,7 @@
 # File Created: 15-08-2021 01:53:18
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 15-08-2021 04:00:19
+# Last Modified: 01-09-2021 22:49:36
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
 # Silicon Hills LLC (c) Copyright 2021
@@ -34,7 +34,7 @@ services:
       LDAP_BASE_DN: ''
       LDAP_CONFIG_PASSWORD: config
       LDAP_DOMAIN: example.org
-      LDAP_HASH_PASSWORD: 'true'
+      LDAP_HASH_PASSWORD: SHA512CRYPT
       LDAP_LOG_LEVEL: '256'
       LDAP_ORGANISATION: 'Example Inc.'
       LDAP_READONLY_USER: 'false'

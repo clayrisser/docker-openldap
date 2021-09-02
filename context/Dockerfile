@@ -3,7 +3,7 @@
 # File Created: 15-08-2021 01:53:18
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 24-08-2021 12:57:18
+# Last Modified: 01-09-2021 22:28:29
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
 # Silicon Hills LLC (c) Copyright 2021
@@ -22,7 +22,19 @@
 
 FROM osixia/openldap:1.5.0
 
-ADD ppolicy.ldif /container/service/slapd/assets
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && \
+    apt-get install -y \
+    curl && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN curl -LO https://github.com/kelseyhightower/confd/releases/download/v0.16.0/confd-0.16.0-linux-amd64 && \
+    mv confd-0.16.0-linux-amd64 /usr/local/bin/confd && \
+    chmod +x /usr/local/bin/confd
+
+ADD ppolicy.ldif.tmpl /container/service/slapd/assets
 ADD bootstrap /container/service/slapd/assets/config/bootstrap
 ADD entrypoint.sh /usr/local/sbin/entrypoint
 
@@ -30,4 +42,4 @@ RUN chmod +x /usr/local/sbin/entrypoint
 
 ENTRYPOINT [ "/bin/sh", "/usr/local/sbin/entrypoint" ]
 
-ENV LDAP_HASH_PASSWORD=true
+ENV LDAP_HASH_PASSWORD=SHA512CRYPT
