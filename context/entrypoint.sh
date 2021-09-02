@@ -5,7 +5,7 @@
 # File Created: 15-08-2021 01:53:18
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 01-09-2021 23:18:48
+# Last Modified: 01-09-2021 23:55:56
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
 # Silicon Hills LLC (c) Copyright 2021
@@ -35,21 +35,25 @@ __load_ldif() {
     if [ "$LDAP_BASE_DN" = "" ]; then
         export LDAP_BASE_DN=$(echo dc=$(echo $LDAP_DOMAIN | sed 's|\..*$||g'),dc=$(echo $LDAP_DOMAIN | sed 's|^.*\.||g'))
     fi
+    mkdir -p /container/ldif
     mkdir -p /etc/confd/conf.d
     mkdir -p /etc/confd/templates
-    for f in $(ls /container/service/slapd/assets/config/bootstrap/ldif | grep -E "\.ldif\.tmpl$"); do
-        mkdir -p $(echo "/container/ldif/$f" | sed 's|\/[^\/]*$||g')
+    CWD=$(pwd)
+    cd /container/service/slapd/assets/config/bootstrap/ldif
+    for f in $(find . -type f -name '*.ldif.tmpl' | sed 's|^\.\/||g'); do
+        mkdir -p $(echo "/container/ldif/${f}" | sed 's|\/[^\/]*$||g')
         cp "/container/service/slapd/assets/config/bootstrap/ldif/${f}" "/etc/confd/templates/${f}"
-        cat <<EOF > "/etc/confd/conf.d/${f}.toml"
+        cat <<EOF > "/etc/confd/conf.d/$(echo $f | sed 's|\/|_|g').toml"
 [template]
 src  = "${f}"
 dest = "/container/ldif/$(echo $f | sed 's|\.tmpl$||g')"
 EOF
     done
-    for f in $(ls /container/service/slapd/assets/config/bootstrap/ldif | grep -E "\.ldif$"); do
-        mkdir -p $(echo "/container/ldif/$f" | sed 's|\/[^\/]*$||g')
-        cp /container/service/slapd/assets/config/bootstrap/ldif/$f /container/ldif/$f
+    for f in $(find . -type f -name '*.ldif' | sed 's|^\.\/||g'); do
+        mkdir -p $(echo "/container/ldif/${f}" | sed 's|\/[^\/]*$||g')
+        cp "/container/service/slapd/assets/config/bootstrap/ldif/${f}" "/container/ldif/${f}"
     done
+    cd $CWD
     if [ "$LDAP_HASH_PASSWORD" != "" ] && \
         [ "$(echo $LDAP_HASH_PASSWORD | awk '{ print toupper($0) }')" != "FALSE" ] && \
         [ "$(echo $LDAP_HASH_PASSWORD | awk '{ print toupper($0) }')" != "NONE" ]; then

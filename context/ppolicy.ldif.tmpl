@@ -53,12 +53,12 @@ objectClass: olcOverlayConfig
 objectClass: olcPPolicyConfig
 olcOverlay: {2}ppolicy
 olcPPolicyHashCleartext: TRUE
-olcPPolicyDefault: cn=default,ou=pwpolicies,{{ getenv "LDAP_BASE_DN" }}
+olcPPolicyDefault: cn=default,ou=ppolicy,{{ getenv "LDAP_BASE_DN" }}
 
-dn: ou=pwpolicies,{{ getenv "LDAP_BASE_DN" }}
+dn: ou=ppolicy,{{ getenv "LDAP_BASE_DN" }}
 objectclass: organizationalUnit
 objectclass: top
-ou: pwpolicies
+ou: ppolicy
 
 dn: cn=default,ou=ppolicy,{{ getenv "LDAP_BASE_DN" }}
 changetype: add
