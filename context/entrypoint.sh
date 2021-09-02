@@ -5,7 +5,7 @@
 # File Created: 15-08-2021 01:53:18
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 01-09-2021 22:46:43
+# Last Modified: 01-09-2021 23:18:48
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
 # Silicon Hills LLC (c) Copyright 2021
@@ -50,7 +50,9 @@ EOF
         mkdir -p $(echo "/container/ldif/$f" | sed 's|\/[^\/]*$||g')
         cp /container/service/slapd/assets/config/bootstrap/ldif/$f /container/ldif/$f
     done
-    if [ "$LDAP_HASH_PASSWORD" != "" ] && [ "$LDAP_HASH_PASSWORD" != "false" ]; then
+    if [ "$LDAP_HASH_PASSWORD" != "" ] && \
+        [ "$(echo $LDAP_HASH_PASSWORD | awk '{ print toupper($0) }')" != "FALSE" ] && \
+        [ "$(echo $LDAP_HASH_PASSWORD | awk '{ print toupper($0) }')" != "NONE" ]; then
         cp /container/service/slapd/assets/ppolicy.ldif.tmpl /etc/confd/templates/ppolicy.ldif.tmpl
         cat <<EOF > /etc/confd/conf.d/ppolicy.ldif.toml
 [template]
