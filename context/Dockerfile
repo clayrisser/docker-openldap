@@ -3,7 +3,7 @@
 # File Created: 15-08-2021 01:53:18
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 01-09-2021 23:58:06
+# Last Modified: 03-09-2021 05:13:16
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
 # Silicon Hills LLC (c) Copyright 2021
@@ -20,18 +20,36 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM osixia/openldap:1.5.0
+FROM debian:11.0-slim as builder
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update && \
-    apt-get install -y \
-    curl && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+WORKDIR /tmp
+
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    curl \
+    git \
+    groff \
+    groff-base \
+    libdb-dev \
+    libtool-bin \
+    make
 
 RUN curl -LO https://github.com/kelseyhightower/confd/releases/download/v0.16.0/confd-0.16.0-linux-amd64 && \
-    mv confd-0.16.0-linux-amd64 /usr/local/bin/confd && \
+    mv confd-0.16.0-linux-amd64 confd
+
+RUN git clone https://gitlab.com/bitspur/community/hello-world-openldap-overlay.git && \
+    cd hello-world-openldap-overlay && \
+    make install
+
+FROM osixia/openldap:1.5.0
+
+COPY --from=builder /tmp/confd /usr/local/bin/confd
+COPY --from=builder /usr/lib/ldap /tmp/ldap/lib
+
+RUN cp -r /tmp/ldap/lib/* /usr/lib/ldap && \
+    rm -rf /tmp/ldap && \
     chmod +x /usr/local/bin/confd
 
 ADD ppolicy.ldif.tmpl /container/service/slapd/assets
