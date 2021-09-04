@@ -195,7 +195,7 @@
   "psi-header.changes-tracking": {
     "autoHeader": "autoSave",
     "enforceHeader": true,
-    "include": ["terraform", "makefile", "dockerfile"],
+    "include": ["makefile", "dockerfile"],
     "includeGlob": ["**/*.yaml", "**/*.yml", "**/*.schema", "**/*.sh"],
     "isActive": true,
     "modAuthor": "Modified By:",

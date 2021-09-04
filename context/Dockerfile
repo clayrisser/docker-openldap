@@ -3,7 +3,7 @@
 # File Created: 15-08-2021 01:53:18
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 03-09-2021 05:13:16
+# Last Modified: 04-09-2021 04:23:07
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
 # Silicon Hills LLC (c) Copyright 2021
@@ -20,36 +20,48 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM debian:11.0-slim as builder
+FROM osixia/openldap:1.5.0 as builder
 
 ENV DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /tmp
 
+RUN echo "deb-src http://deb.debian.org/debian buster main" >> /etc/apt/sources.list && \
+    echo "deb-src http://security.debian.org/debian-security buster/updates main" >> /etc/apt/sources.list && \
+    echo "deb-src http://deb.debian.org/debian buster-updates main" >> /etc/apt/sources.list && \
+    echo "deb-src http://ftp.debian.org/debian buster-backports main" >> /etc/apt/sources.list
 RUN apt-get update && apt-get install -y \
+    apt-utils \
     build-essential \
     curl \
-    git \
-    groff \
-    groff-base \
-    libdb-dev \
-    libtool-bin \
+    dpkg-dev \
     make
+RUN apt-get build-dep slapd -y
+
+RUN mkdir -p debs
+RUN curl -L -o hello_world.tar.gz \
+    https://gitlab.com/bitspur/community/hello-world-openldap-overlay/-/archive/main/hello-world-openldap-overlay-main.tar.gz && \
+    tar -xzvf hello_world.tar.gz && \
+    mv hello-world-openldap-overlay-main hello_world
+RUN cd hello_world && \
+    make -s install && \
+    mv debs/* ../debs
 
 RUN curl -LO https://github.com/kelseyhightower/confd/releases/download/v0.16.0/confd-0.16.0-linux-amd64 && \
     mv confd-0.16.0-linux-amd64 confd
 
-RUN git clone https://gitlab.com/bitspur/community/hello-world-openldap-overlay.git && \
-    cd hello-world-openldap-overlay && \
-    make install
-
 FROM osixia/openldap:1.5.0
 
-COPY --from=builder /tmp/confd /usr/local/bin/confd
-COPY --from=builder /usr/lib/ldap /tmp/ldap/lib
+ENV DEBIAN_FRONTEND=noninteractive
 
-RUN cp -r /tmp/ldap/lib/* /usr/lib/ldap && \
-    rm -rf /tmp/ldap && \
+COPY --from=builder /tmp/confd /usr/local/bin/confd
+COPY --from=builder /tmp/debs /tmp/debs
+RUN apt-get update && \
+    (dpkg -i /tmp/debs/*.deb || true) && \
+    apt-get install -f -y && \
+    dpkg -i /tmp/debs/*.deb && \
+    apt-get clean && \
+    rm -rf /tmp/debs /var/lib/apt/lists/* && \
     chmod +x /usr/local/bin/confd
 
 ADD ppolicy.ldif.tmpl /container/service/slapd/assets

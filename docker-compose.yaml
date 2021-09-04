@@ -3,7 +3,7 @@
 # File Created: 15-08-2021 01:53:18
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 01-09-2021 22:49:36
+# Last Modified: 04-09-2021 04:19:53
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
 # Silicon Hills LLC (c) Copyright 2021
@@ -20,65 +20,52 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-version: '3.7'
+version: "3.7"
 
 services:
-  openldap:
+  ldap:
     container_name: ${NAME}
     image: ${IMAGE}:latest
-    ports:
-      - 3000:3000
-    environment:
-      LDAP_ADMIN_PASSWORD: admin
-      LDAP_BACKEND: 'mdb'
-      LDAP_BASE_DN: ''
-      LDAP_CONFIG_PASSWORD: config
-      LDAP_DOMAIN: example.org
-      LDAP_HASH_PASSWORD: SHA512CRYPT
-      LDAP_LOG_LEVEL: '256'
-      LDAP_ORGANISATION: 'Example Inc.'
-      LDAP_READONLY_USER: 'false'
-      LDAP_READONLY_USER_PASSWORD: readonly
-      LDAP_READONLY_USER_USERNAME: readonly
-      LDAP_REPLICATION: 'false'
-      LDAP_RFC2307BIS_SCHEMA: 'false'
-      LDAP_TLS: 'true'
-      LDAP_TLS_CA_CRT_FILENAME: ca.crt
-      LDAP_TLS_CIPHER_SUITE: SECURE256:-VERS-SSL3.0
-      LDAP_TLS_CRT_FILENAME: ldap.crt
-      LDAP_TLS_ENFORCE: 'false'
-      LDAP_TLS_KEY_FILENAME: ldap.key
-      LDAP_TLS_PROTOCOL_MIN: '3.1'
-      LDAP_TLS_VERIFY_CLIENT: demand
-      #LDAP_REPLICATION_CONFIG_SYNCPROV: "binddn="cn=admin,cn=config" bindmethod=simple credentials=$LDAP_CONFIG_PASSWORD searchbase="cn=config" type=refreshAndPersist retry="60 +" timeout=1 starttls=critical"
-      #LDAP_REPLICATION_DB_SYNCPROV: "binddn="cn=admin,$LDAP_BASE_DN" bindmethod=simple credentials=$LDAP_ADMIN_PASSWORD searchbase="$LDAP_BASE_DN" type=refreshAndPersist interval=00:00:00:10 retry="60 +" timeout=1 starttls=critical"
-      #docker-compose.ymlLDAP_REPLICATION_HOSTS: "#PYTHON2BASH:['ldap://ldap.example.org','ldap://ldap2.example.org']"
-      KEEP_EXISTING_CONFIG: 'false'
-      LDAP_REMOVE_CONFIG_AFTER_SETUP: 'false'
-      LDAP_SSL_HELPER_PREFIX: ldap
-    tty: true
+    command: "--loglevel debug"
+    domainname: example.com
+    hostname: ldap
     stdin_open: true
-    # volumes:
-    #   - /var/lib/ldap
-    #   - /etc/ldap/slapd.d
-    #   - /container/service/slapd/assets/certs/
+    tty: true
     ports:
-      - '389:389'
-      - '636:636'
-    domainname: example.org # important: same as hostname
-    hostname: example.org
+      - 389:389
+      - 636:636
+    environment:
+      LDAP_ADMIN_PASSWORD: P@ssw0rd
+      LDAP_BACKEND: "mdb"
+      LDAP_CONFIG_PASSWORD: P@ssw0rd
+      LDAP_DOMAIN: example.org
+      LDAP_ORGANISATION: "Example Inc."
+    volumes:
+      - openldap:/var/lib/ldap
+      - openldap-config:/etc/ldap/slapd.d
 
   phpldapadmin:
-    image: osixia/phpldapadmin:latest
+    image: osixia/phpldapadmin:0.9.0
+    command: "--loglevel debug"
     container_name: phpldapadmin
     environment:
-      PHPLDAPADMIN_LDAP_HOSTS: openldap
-      PHPLDAPADMIN_HTTPS: 'false'
+      PHPLDAPADMIN_HTTPS: "false"
+      PHPLDAPADMIN_LDAP_HOSTS: |
+        #PYTHON2BASH:[
+          {'openldap': [
+            {'server': [
+              {'host': 'ldap://ldap'},
+            ]},
+            {'login': [{'bind_id': 'cn=admin,dc=example,dc=org'}]}
+          ]}
+        ]
     ports:
       - 8080:80
     depends_on:
-      - openldap
+      - ldap
 
 volumes:
   openldap:
     name: openldap-${NAME}
+  openldap-config:
+    name: openldap-config-${NAME}
