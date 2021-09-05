@@ -3,7 +3,7 @@
 # File Created: 15-08-2021 01:53:18
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 04-09-2021 20:56:36
+# Last Modified: 05-09-2021 03:13:49
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
 # Silicon Hills LLC (c) Copyright 2021
@@ -26,6 +26,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /tmp
 
+# setup openldap build environment
 RUN echo "deb-src http://deb.debian.org/debian buster main" >> /etc/apt/sources.list && \
     echo "deb-src http://security.debian.org/debian-security buster/updates main" >> /etc/apt/sources.list && \
     echo "deb-src http://deb.debian.org/debian buster-updates main" >> /etc/apt/sources.list && \
@@ -35,21 +36,36 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     curl \
     dpkg-dev \
-    make
+    libgcrypt20-dev \
+    libkrb5-dev \
+    libssl-dev \
+    make \
+    unzip
 RUN apt-get build-dep slapd -y
 
-RUN echo 8 > /dev/null # nonce
-RUN mkdir -p debs
-RUN curl -L -o hello_world.tar.gz \
-    https://gitlab.com/bitspur/community/hello-world-openldap-overlay/-/archive/main/hello-world-openldap-overlay-main.tar.gz && \
-    tar -xzvf hello_world.tar.gz && \
-    mv hello-world-openldap-overlay-main hello_world
-RUN cd hello_world && \
-    make -s install && \
-    mv debs/* ../debs
-
+# get confd
 RUN curl -LO https://github.com/kelseyhightower/confd/releases/download/v0.16.0/confd-0.16.0-linux-amd64 && \
     mv confd-0.16.0-linux-amd64 confd
+
+RUN echo 3 > /dev/null # nonce
+RUN mkdir -p debs
+
+# prepare hello_world module
+RUN curl -L -o hello_world.tar.gz \
+    https://gitlab.com/bitspur/community/hello-world-openldap-overlay/-/archive/main/hello-world-openldap-overlay-main.tar.gz && \
+    tar -xzvf hello_world.tar.gz && mv hello-world-openldap-overlay-main hello_world && \
+    make -s -C hello_world prepare WORKDIR=..
+
+# prepare mbkrb5pwd module
+RUN curl -L -o mbkrb5pwd.zip https://codeload.github.com/opinsys/smbkrb5pwd/zip/refs/heads/master && \
+    unzip mbkrb5pwd.zip && \
+    mv smbkrb5pwd-master openldap/contrib/slapd-modules/smbkrb5pwd && \
+    sed -i 's|^CONTRIB_MODULES = |CONTRIB_MODULES = smbkrb5pwd |g' openldap/debian/rules && \
+    echo "usr/lib/ldap/smbkrb5pwd.so*" >> openldap/debian/slapd.install && \
+    echo "usr/lib/ldap/smbkrb5pwd.la" >> openldap/debian/slapd.install
+
+# compile openldap
+RUN make -s -C hello_world build WORKDIR=..
 
 FROM osixia/openldap:1.5.0
 
