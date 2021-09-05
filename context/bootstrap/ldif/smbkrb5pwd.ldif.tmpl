@@ -2,7 +2,6 @@
 
 {{- if (not (eq (getenv "LDAP_SMBKRB5PWD") "")) }}
 {{- if (not (eq (toUpper (getenv "LDAP_SMBKRB5PWD")) "FALSE")) }}
-{{- if (not (eq (toUpper (getenv "LDAP_SMBKRB5PWD")) "NONE")) }}
 
 dn: cn=module{0},cn=config
 changetype: modify
@@ -20,6 +19,5 @@ olcSmbKrb5PwdMustChange: 2592012
 olcSmbKrb5PwdKrb5Realm: {{ toUpper (getenv "KERBEROS_REALM") }}
 olcSmbKrb5PwdRequiredClass: posixAccount
 
-{{- end }}
 {{- end }}
 {{- end }}

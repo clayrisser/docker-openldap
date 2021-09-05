@@ -84,6 +84,7 @@
     "pattributes",
     "pconfig",
     "pkcs",
+    "posix",
     "postdatable",
     "postexec",
     "ppolicy",

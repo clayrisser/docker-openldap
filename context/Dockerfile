@@ -3,7 +3,7 @@
 # File Created: 15-08-2021 01:53:18
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 05-09-2021 03:27:39
+# Last Modified: 05-09-2021 03:36:29
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
 # Silicon Hills LLC (c) Copyright 2021
@@ -96,4 +96,5 @@ RUN chmod +x /usr/local/sbin/entrypoint
 
 ENTRYPOINT [ "/bin/sh", "/usr/local/sbin/entrypoint" ]
 
-ENV LDAP_HASH_PASSWORD=SHA512CRYPT
+ENV LDAP_HASH_PASSWORD=SHA512CRYPT \
+    LDAP_SMBKRB5PWD=FALSE
