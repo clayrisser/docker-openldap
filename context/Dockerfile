@@ -3,7 +3,7 @@
 # File Created: 15-08-2021 01:53:18
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 04-09-2021 04:23:07
+# Last Modified: 04-09-2021 20:56:36
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
 # Silicon Hills LLC (c) Copyright 2021
@@ -38,6 +38,7 @@ RUN apt-get update && apt-get install -y \
     make
 RUN apt-get build-dep slapd -y
 
+RUN echo 8 > /dev/null # nonce
 RUN mkdir -p debs
 RUN curl -L -o hello_world.tar.gz \
     https://gitlab.com/bitspur/community/hello-world-openldap-overlay/-/archive/main/hello-world-openldap-overlay-main.tar.gz && \
