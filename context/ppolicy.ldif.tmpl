@@ -10,18 +10,6 @@ changetype: modify
 add: olcModuleLoad
 olcModuleLoad: ppolicy
 
-# load hello_world module
-dn: cn=module{0},cn=config
-changetype: modify
-add: olcModuleLoad
-olcModuleLoad: hello_world
-
-# configure hello_world module
-dn: olcOverlay={2}hello_world,olcDatabase={1}mdb,cn=config
-objectClass: olcOverlayConfig
-objectClass: olcPPolicyConfig
-olcOverlay: {2}hello_world
-
 dn: cn=config
 changetype: modify
 {{- if (eq (toUpper (getenv "LDAP_HASH_PASSWORD")) "SSHA") }}
