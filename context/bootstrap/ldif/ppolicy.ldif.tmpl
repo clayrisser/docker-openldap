@@ -5,6 +5,10 @@
 # https://www.openldap.org/lists/openldap-technical/201608/msg00078.html
 # https://www.redpill-linpro.com/techblog/2016/08/16/ldap-password-hash.html
 
+{{- if (not (eq (getenv "LDAP_HASH_PASSWORD") "")) }}
+{{- if (not (eq (toUpper (getenv "LDAP_HASH_PASSWORD")) "FALSE")) }}
+{{- if (not (eq (toUpper (getenv "LDAP_HASH_PASSWORD")) "NONE")) }}
+
 dn: cn=module{0},cn=config
 changetype: modify
 add: olcModuleLoad
@@ -80,3 +84,7 @@ pwdMaxFailure: 5
 pwdMinLength: 6
 pwdMustChange: FALSE
 pwdSafeModify: FALSE
+
+{{- end }}
+{{- end }}
+{{- end }}

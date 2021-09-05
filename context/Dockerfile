@@ -3,7 +3,7 @@
 # File Created: 15-08-2021 01:53:18
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 05-09-2021 03:13:49
+# Last Modified: 05-09-2021 03:27:39
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
 # Silicon Hills LLC (c) Copyright 2021
@@ -64,6 +64,14 @@ RUN curl -L -o mbkrb5pwd.zip https://codeload.github.com/opinsys/smbkrb5pwd/zip/
     echo "usr/lib/ldap/smbkrb5pwd.so*" >> openldap/debian/slapd.install && \
     echo "usr/lib/ldap/smbkrb5pwd.la" >> openldap/debian/slapd.install
 
+# prepare mbkrb5pwd_srv module
+RUN curl -L -o mbkrb5pwd_srv.zip https://codeload.github.com/opinsys/smbkrb5pwd/zip/refs/heads/no_kadmin && \
+    unzip mbkrb5pwd_srv.zip && \
+    mv smbkrb5pwd-no_kadmin openldap/contrib/slapd-modules/smbkrb5pwd_srv && \
+    sed -i 's|^CONTRIB_MODULES = |CONTRIB_MODULES = smbkrb5pwd_srv |g' openldap/debian/rules && \
+    echo "usr/lib/ldap/smbkrb5pwd_srv.so*" >> openldap/debian/slapd.install && \
+    echo "usr/lib/ldap/smbkrb5pwd_srv.la" >> openldap/debian/slapd.install
+
 # compile openldap
 RUN make -s -C hello_world build WORKDIR=..
 
@@ -81,7 +89,6 @@ RUN apt-get update && \
     rm -rf /tmp/debs /var/lib/apt/lists/* && \
     chmod +x /usr/local/bin/confd
 
-ADD ppolicy.ldif.tmpl /container/service/slapd/assets
 ADD bootstrap /container/service/slapd/assets/config/bootstrap
 ADD entrypoint.sh /usr/local/sbin/entrypoint
 

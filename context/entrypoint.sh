@@ -5,7 +5,7 @@
 # File Created: 15-08-2021 01:53:18
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 01-09-2021 23:55:56
+# Last Modified: 05-09-2021 03:33:28
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
 # Silicon Hills LLC (c) Copyright 2021
@@ -21,6 +21,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+if [ "$KERBEROS_REALM" = "" ]; then
+    export KERBEROS_REALM="$LDAP_DOMAIN"
+fi
 
 __ldapadd() {
     ldapadd -c -Y EXTERNAL -H ldapi:/// -f $1 2>&1 | \
@@ -54,16 +58,6 @@ EOF
         cp "/container/service/slapd/assets/config/bootstrap/ldif/${f}" "/container/ldif/${f}"
     done
     cd $CWD
-    if [ "$LDAP_HASH_PASSWORD" != "" ] && \
-        [ "$(echo $LDAP_HASH_PASSWORD | awk '{ print toupper($0) }')" != "FALSE" ] && \
-        [ "$(echo $LDAP_HASH_PASSWORD | awk '{ print toupper($0) }')" != "NONE" ]; then
-        cp /container/service/slapd/assets/ppolicy.ldif.tmpl /etc/confd/templates/ppolicy.ldif.tmpl
-        cat <<EOF > /etc/confd/conf.d/ppolicy.ldif.toml
-[template]
-src  = "ppolicy.ldif.tmpl"
-dest = "/container/ldif/10-ppolicy.ldif"
-EOF
-    fi
     confd -onetime -backend env
     for f in $(find /container/ldif -type f -name '*.ldif'); do
         until __ldapadd $f
