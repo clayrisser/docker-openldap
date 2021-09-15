@@ -3,7 +3,7 @@
 # File Created: 15-08-2021 01:53:18
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 15-09-2021 04:13:34
+# Last Modified: 15-09-2021 04:22:15
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
 # Silicon Hills LLC (c) Copyright 2021
@@ -20,7 +20,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-objectIdentifier ArbitraryData 1.3.6.1.4.1.57257:1000
+objectIdentifier ArbitraryData 1.3.6.1.4.1.57257.1000
 
 attributetype ( ArbitraryData:1.1000
         NAME 'arbitrary'
