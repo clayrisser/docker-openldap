@@ -3,7 +3,7 @@
 # File Created: 15-08-2021 01:53:18
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 15-09-2021 04:29:56
+# Last Modified: 15-09-2021 04:32:43
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
 # Silicon Hills LLC (c) Copyright 2021
@@ -50,6 +50,6 @@ objectclass ( ExtendedPerson:2.1
     DESC 'extended attributes to add to inetOrgPerson'
     STRUCTURAL
     SUP inetOrgPerson
-    MAY ( dob $
+    MAY ( dateOfBirth $
           gender $
           secondLanguage ) )
