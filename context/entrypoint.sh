@@ -60,6 +60,7 @@ EOF
     cd $CWD
     confd -onetime -backend env
     for f in $(find /container/ldif -type f -name '*.ldif'); do
+        echo ldapadd $f
         until __ldapadd $f
         do
             echo trying ldapadd again in 30 seconds . . .
