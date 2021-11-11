@@ -5,7 +5,7 @@
 # File Created: 15-08-2021 01:53:18
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 05-09-2021 03:33:28
+# Last Modified: 11-11-2021 03:09:55
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
 # Silicon Hills LLC (c) Copyright 2021
@@ -43,10 +43,10 @@ __load_ldif() {
     mkdir -p /etc/confd/conf.d
     mkdir -p /etc/confd/templates
     CWD=$(pwd)
-    cd /container/service/slapd/assets/config/bootstrap/ldif
+    cd /container/service/slapd/assets/config/templates/ldif
     for f in $(find . -type f -name '*.ldif.tmpl' | sed 's|^\.\/||g'); do
         mkdir -p $(echo "/container/ldif/${f}" | sed 's|\/[^\/]*$||g')
-        cp "/container/service/slapd/assets/config/bootstrap/ldif/${f}" "/etc/confd/templates/${f}"
+        cp "/container/service/slapd/assets/config/templates/ldif/${f}" "/etc/confd/templates/${f}"
         cat <<EOF > "/etc/confd/conf.d/$(echo $f | sed 's|\/|_|g').toml"
 [template]
 src  = "${f}"
@@ -55,11 +55,12 @@ EOF
     done
     for f in $(find . -type f -name '*.ldif' | sed 's|^\.\/||g'); do
         mkdir -p $(echo "/container/ldif/${f}" | sed 's|\/[^\/]*$||g')
-        cp "/container/service/slapd/assets/config/bootstrap/ldif/${f}" "/container/ldif/${f}"
+        cp "/container/service/slapd/assets/config/templates/ldif/${f}" "/container/ldif/${f}"
     done
     cd $CWD
     confd -onetime -backend env
     for f in $(find /container/ldif -type f -name '*.ldif'); do
+        echo 'ldapadd -c -Y EXTERNAL -H ldapi:/// -f' $f
         until __ldapadd $f
         do
             echo trying ldapadd again in 30 seconds . . .

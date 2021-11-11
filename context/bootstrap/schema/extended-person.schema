@@ -3,7 +3,7 @@
 # File Created: 15-08-2021 01:53:18
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 16-09-2021 00:57:18
+# Last Modified: 16-09-2021 01:12:39
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
 # Silicon Hills LLC (c) Copyright 2021
@@ -48,8 +48,8 @@ attributetype ( ExtendedPerson:1.1002
 objectclass ( ExtendedPerson:2.1
     NAME 'extendedPerson'
     DESC 'extended attributes to add to inetOrgPerson'
-    STRUCTURAL
-    SUP inetOrgPerson
+    AUXILIARY
+    SUP top
     MAY ( dob $
           gender $
           secondLanguage ) )

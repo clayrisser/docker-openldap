@@ -3,7 +3,7 @@
 # File Created: 15-08-2021 01:53:18
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 05-09-2021 03:36:29
+# Last Modified: 11-11-2021 03:09:00
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
 # Silicon Hills LLC (c) Copyright 2021
@@ -22,8 +22,6 @@
 
 FROM osixia/openldap:1.5.0 as builder
 
-ENV DEBIAN_FRONTEND=noninteractive
-
 WORKDIR /tmp
 
 # setup openldap build environment
@@ -31,7 +29,7 @@ RUN echo "deb-src http://deb.debian.org/debian buster main" >> /etc/apt/sources.
     echo "deb-src http://security.debian.org/debian-security buster/updates main" >> /etc/apt/sources.list && \
     echo "deb-src http://deb.debian.org/debian buster-updates main" >> /etc/apt/sources.list && \
     echo "deb-src http://ftp.debian.org/debian buster-backports main" >> /etc/apt/sources.list
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     apt-utils \
     build-essential \
     curl \
@@ -41,7 +39,7 @@ RUN apt-get update && apt-get install -y \
     libssl-dev \
     make \
     unzip
-RUN apt-get build-dep slapd -y
+RUN apt-get build-dep slapd=2.4.57 -y
 
 # get confd
 RUN curl -LO https://github.com/kelseyhightower/confd/releases/download/v0.16.0/confd-0.16.0-linux-amd64 && \
@@ -75,21 +73,34 @@ RUN curl -L -o mbkrb5pwd_srv.zip https://codeload.github.com/opinsys/smbkrb5pwd/
 # compile openldap
 RUN make -s -C hello_world build WORKDIR=..
 
-FROM osixia/openldap:1.5.0
+RUN apt-get -y update && \
+    (dpkg -i /tmp/debs/*.deb || true) && \
+    LC_ALL=C DEBIAN_FRONTEND=noninteractive apt-get install -f -y && \
+    dpkg -i /tmp/debs/*.deb
 
-ENV DEBIAN_FRONTEND=noninteractive
+FROM osixia/openldap:1.5.0
 
 COPY --from=builder /tmp/confd /usr/local/bin/confd
 COPY --from=builder /tmp/debs /tmp/debs
-RUN apt-get update && \
-    (dpkg -i /tmp/debs/*.deb || true) && \
-    apt-get install -f -y && \
-    dpkg -i /tmp/debs/*.deb && \
-    apt-get clean && \
-    rm -rf /tmp/debs /var/lib/apt/lists/* && \
+COPY --from=builder /usr/lib/ldap /tmp/lib/ldap
+
+ARG OPENLDAP_PACKAGE_VERSION=2.4.57
+
+# RUN apt-get -y update && \
+#     (dpkg -i /tmp/debs/*.deb || true) && \
+#     LC_ALL=C DEBIAN_FRONTEND=noninteractive apt-get install -f -y && \
+#     dpkg -i /tmp/debs/*.deb && \
+#     apt-get clean && \
+#     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
+#     chmod +x /usr/local/bin/confd
+
+RUN apt-get clean && \
+    cp -rn /tmp/lib/ldap/* /usr/lib/ldap && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
     chmod +x /usr/local/bin/confd
 
 ADD bootstrap /container/service/slapd/assets/config/bootstrap
+ADD templates /container/service/slapd/assets/config/templates
 ADD entrypoint.sh /usr/local/sbin/entrypoint
 
 RUN chmod +x /usr/local/sbin/entrypoint
