@@ -27,7 +27,7 @@ ifneq (,$(MKPM_READY))
 export CONTEXT := context
 export NAME ?= docker-openldap
 export REGISTRY ?= registry.gitlab.com/silicon-hills/community
-export VERSION ?= 0.0.1
+export VERSION ?= 0.0.2
 
 -include $(MKPM)/docker
 

@@ -5,7 +5,7 @@
 # File Created: 15-08-2021 01:53:18
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 03-12-2021 09:20:02
+# Last Modified: 03-12-2021 10:53:26
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
 # Silicon Hills LLC (c) Copyright 2021
@@ -24,6 +24,9 @@
 
 if [ "$KERBEROS_REALM" = "" ]; then
     export KERBEROS_REALM="$LDAP_DOMAIN"
+fi
+if [ "$LDAP_BASE_DN" = "" ]; then
+    export LDAP_BASE_DN=$(echo dc=$(echo $LDAP_DOMAIN | sed 's|\..*$||g'),dc=$(echo $LDAP_DOMAIN | sed 's|^.*\.||g'))
 fi
 
 __ldapready() {
@@ -52,9 +55,6 @@ __ldapadd() {
 }
 
 __load_ldif() {
-    if [ "$LDAP_BASE_DN" = "" ]; then
-        export LDAP_BASE_DN=$(echo dc=$(echo $LDAP_DOMAIN | sed 's|\..*$||g'),dc=$(echo $LDAP_DOMAIN | sed 's|^.*\.||g'))
-    fi
     mkdir -p /container/ldif
     mkdir -p /etc/confd/conf.d
     mkdir -p /etc/confd/templates
