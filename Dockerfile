@@ -3,7 +3,7 @@
 # File Created: 15-08-2021 01:53:18
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 03-12-2021 08:38:08
+# Last Modified: 03-12-2021 09:24:48
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
 # Silicon Hills LLC (c) Copyright 2021
@@ -98,8 +98,8 @@ RUN apt-get clean && \
     cp -rn /tmp/lib/ldap/* /usr/lib/ldap && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
     chmod +x /usr/local/bin/confd && \
-    mkdir -p /home/openldap && \
-    chown -R openldap:openldap /home/openldap
+    mkdir -p /home/openldap /var/log/slapd/auditlog && \
+    chown -R openldap:openldap /home/openldap /var/log/slapd/auditlog
 
 ADD bootstrap /container/service/slapd/assets/config/bootstrap
 ADD templates /container/service/slapd/assets/config/templates
@@ -110,7 +110,7 @@ RUN chmod +x /usr/local/sbin/entrypoint
 ENTRYPOINT [ "/bin/sh", "/usr/local/sbin/entrypoint" ]
 
 ENV LDAP_AUDITLOG=FALSE \
-    LDAP_AUDITLOG_FILE=/tmp/auditlog.log \
+    LDAP_AUDITLOG_FILE=/var/log/slapd/auditlog/auditlog.log \
     LDAP_AUDITLOG_TRUNCATE=TRUE \
     LDAP_HASH_PASSWORD=SHA512CRYPT \
     LDAP_SMBKRB5PWD=FALSE \
