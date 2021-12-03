@@ -5,7 +5,7 @@
 # File Created: 15-08-2021 01:53:18
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 03-12-2021 14:58:16
+# Last Modified: 03-12-2021 15:05:19
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
 # Silicon Hills LLC (c) Copyright 2021
@@ -91,6 +91,7 @@ EOF
 }
 
 __auditlog() {
+    chown -R openldap:openldap /var/log/slapd/auditlog
     while true; do
         if [ -f /tmp/ldap_ready ]; then
             runuser -l openldap -c "truncate -s 0 $LDAP_AUDITLOG_FILE"
