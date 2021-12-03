@@ -1,0 +1,16 @@
+{{- if (not (eq (getenv "LDAP_AUDITLOG") "")) }}
+{{- if (not (eq (toUpper (getenv "LDAP_AUDITLOG")) "FALSE")) }}
+
+dn: cn=module{0},cn=config
+changetype: modify
+add: olcModuleLoad
+olcModuleLoad: auditlog
+
+dn: olcOverlay=auditlog,olcDatabase={1}{{ getenv "LDAP_BACKEND" }},cn=config
+objectClass: olcOverlayConfig
+objectClass: olcAuditlogConfig
+olcOverlay: auditlog
+olcAuditlogFile: {{ getenv "LDAP_AUDITLOG_FILE" }}
+
+{{- end }}
+{{- end }}

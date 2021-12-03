@@ -1,14 +1,5 @@
 {{- if (not (eq (getenv "LDAP_SYNCREPL") "")) }}
 {{- if (not (eq (toUpper (getenv "LDAP_SYNCREPL")) "FALSE")) }}
-{{- if (not (eq (toUpper (getenv "LDAP_SYNCREPL")) "NONE")) }}
-
-dn: olcDatabase={1}{{ getenv "LDAP_BACKEND" }},cn=config
-changetype: modify
-add: olcDbIndex
-olcDbIndex: entryCSN eq
--
-add: olcDbIndex
-olcDbIndex: entryUUID eq
 
 dn: cn=module{0},cn=config
 changetype: modify
@@ -22,6 +13,5 @@ olcOverlay: {2}syncprov
 olcSpCheckpoint: 100 10
 olcSpSessionLog: 100
 
-{{- end }}
 {{- end }}
 {{- end }}

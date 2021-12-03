@@ -5,7 +5,7 @@
 # File Created: 15-08-2021 01:53:18
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 11-11-2021 03:09:55
+# Last Modified: 03-12-2021 09:20:02
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
 # Silicon Hills LLC (c) Copyright 2021
@@ -26,13 +26,29 @@ if [ "$KERBEROS_REALM" = "" ]; then
     export KERBEROS_REALM="$LDAP_DOMAIN"
 fi
 
-__ldapadd() {
-    ldapadd -c -Y EXTERNAL -H ldapi:/// -f $1 2>&1 | \
-        tee /tmp/ldapadd.log
-    cat /tmp/ldapadd.log | grep -q "Can't contact LDAP server"
+__ldapready() {
+    ldapsearch -c -Y EXTERNAL -H ldapi:/// -b "$LDAP_BASE_DN" -s base 2>&1 | \
+        tee /tmp/ldapready.log
+    cat /tmp/ldapready.log | grep -q "Can't contact LDAP server"
     if [ "$?" = "0" ]; then
         false
     fi
+}
+
+__ldapready_check() {
+    while ! __ldapready; do
+        echo LDAP not ready yet . . .
+        sleep 10
+    done
+    touch /tmp/ldap_ready
+    echo LDAP is ready!!!
+}
+
+__ldapadd() {
+    if [ ! -f /tmp/ldap_ready ]; then
+        false
+    fi
+    ldapadd -c -Y EXTERNAL -H ldapi:/// -f $1
 }
 
 __load_ldif() {
@@ -63,12 +79,28 @@ EOF
         echo 'ldapadd -c -Y EXTERNAL -H ldapi:/// -f' $f
         until __ldapadd $f
         do
-            echo trying ldapadd again in 30 seconds . . .
-            sleep 30
+            echo trying ldapadd again in 10 seconds . . .
+            sleep 10
         done
     done
 }
 
+__auditlog() {
+    while true; do
+        if [ -f /tmp/ldap_ready ]; then
+            runuser -l openldap -c "truncate -s 0 $LDAP_AUDITLOG_FILE"
+        fi
+        sleep 360
+    done
+}
+
+__ldapready_check &
+
 __load_ldif &
+
+if [ "$LDAP_AUDITLOG" != "" ] && [ "$(echo $LDAP_AUDITLOG | awk '{print tolower($0)}')" != "false" ] && \
+    [ "$LDAP_AUDITLOG_TRUNCATE" != "" ] && [ "$(echo $LDAP_AUDITLOG_TRUNCATE | awk '{print tolower($0)}')" != "false" ]; then
+    __auditlog &
+fi
 
 exec /container/tool/run $@

@@ -1,9 +1,9 @@
-# File: /context/Dockerfile
+# File: /Dockerfile
 # Project: docker-openldap
 # File Created: 15-08-2021 01:53:18
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 11-11-2021 03:09:00
+# Last Modified: 03-12-2021 08:38:08
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
 # Silicon Hills LLC (c) Copyright 2021
@@ -97,7 +97,9 @@ ARG OPENLDAP_PACKAGE_VERSION=2.4.57
 RUN apt-get clean && \
     cp -rn /tmp/lib/ldap/* /usr/lib/ldap && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
-    chmod +x /usr/local/bin/confd
+    chmod +x /usr/local/bin/confd && \
+    mkdir -p /home/openldap && \
+    chown -R openldap:openldap /home/openldap
 
 ADD bootstrap /container/service/slapd/assets/config/bootstrap
 ADD templates /container/service/slapd/assets/config/templates
@@ -107,5 +109,9 @@ RUN chmod +x /usr/local/sbin/entrypoint
 
 ENTRYPOINT [ "/bin/sh", "/usr/local/sbin/entrypoint" ]
 
-ENV LDAP_HASH_PASSWORD=SHA512CRYPT \
-    LDAP_SMBKRB5PWD=FALSE
+ENV LDAP_AUDITLOG=FALSE \
+    LDAP_AUDITLOG_FILE=/tmp/auditlog.log \
+    LDAP_AUDITLOG_TRUNCATE=TRUE \
+    LDAP_HASH_PASSWORD=SHA512CRYPT \
+    LDAP_SMBKRB5PWD=FALSE \
+    LDAP_SYNCREPL=FALSE

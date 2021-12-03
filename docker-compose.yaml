@@ -3,7 +3,7 @@
 # File Created: 15-08-2021 01:53:18
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 03-12-2021 05:38:06
+# Last Modified: 03-12-2021 08:28:27
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
 # Silicon Hills LLC (c) Copyright 2021
@@ -39,7 +39,8 @@ services:
       LDAP_CONFIG_PASSWORD: P@ssw0rd
       LDAP_DOMAIN: example.org
       LDAP_ORGANISATION: "Example Inc."
-      LDAP_SYNCREPL: 'true'
+      LDAP_SYNCREPL: "TRUE"
+      LDAP_AUDITLOG: "TRUE"
     volumes:
       - openldap:/var/lib/ldap
       - openldap-config:/etc/ldap/slapd.d
