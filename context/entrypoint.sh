@@ -5,7 +5,7 @@
 # File Created: 15-08-2021 01:53:18
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 03-12-2021 10:53:26
+# Last Modified: 03-12-2021 14:58:16
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
 # Silicon Hills LLC (c) Copyright 2021
@@ -51,7 +51,12 @@ __ldapadd() {
     if [ ! -f /tmp/ldap_ready ]; then
         false
     fi
-    ldapadd -c -Y EXTERNAL -H ldapi:/// -f $1
+    ldapadd -c -Y EXTERNAL -H ldapi:/// -f $1 2>&1 | \
+        tee /tmp/ldapready.log
+    cat /tmp/ldapready.log | grep -q "Can't contact LDAP server"
+    if [ "$?" = "0" ]; then
+        false
+    fi
 }
 
 __load_ldif() {

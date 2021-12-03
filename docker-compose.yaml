@@ -3,7 +3,7 @@
 # File Created: 15-08-2021 01:53:18
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 03-12-2021 08:28:27
+# Last Modified: 03-12-2021 14:55:05
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
 # Silicon Hills LLC (c) Copyright 2021
@@ -24,15 +24,10 @@ version: "3.7"
 
 services:
   openldap:
+    container_name: ${NAME}
     image: ${IMAGE}:latest
-    command: "--loglevel debug"
-    domainname: example.com
+    # command: "--loglevel debug"
     hostname: openldap
-    stdin_open: true
-    tty: true
-    ports:
-      - 11389:389
-      - 11636:636
     environment:
       LDAP_ADMIN_PASSWORD: P@ssw0rd
       LDAP_BACKEND: "mdb"
@@ -46,8 +41,8 @@ services:
       - openldap-config:/etc/ldap/slapd.d
 
   phpldapadmin:
+    container_name: phpldapadmin
     image: osixia/phpldapadmin:0.9.0
-    command: "--loglevel debug"
     environment:
       PHPLDAPADMIN_HTTPS: "false"
       PHPLDAPADMIN_LDAP_HOSTS: |
