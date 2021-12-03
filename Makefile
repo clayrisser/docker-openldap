@@ -3,7 +3,7 @@
 # File Created: 24-06-2021 04:03:49
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 14-07-2021 21:29:44
+# Last Modified: 03-12-2021 05:12:43
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
 # Silicon Hills LLC (c) Copyright 2021
@@ -20,16 +20,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-NAME ?= docker-openldap
-REGISTRY ?= registry.gitlab.com/silicon-hills/community
-VERSION ?= 0.0.1
-IMAGE := $(REGISTRY)/$(NAME)
+include mkpm.mk
+-include $(MKPM)/gnu
+ifneq (,$(MKPM_READY))
 
-include docker.mk
+export CONTEXT := context
+export NAME ?= docker-openldap
+export REGISTRY ?= registry.gitlab.com/silicon-hills/community
+export VERSION ?= 0.0.1
+
+-include $(MKPM)/docker
 
 .PHONY: ~%
 ~%:
-	@$(MAKE) -s $(shell echo $@ | $(SED) 's/^~//g') ARGS="-d"
+	@$(MAKE) -s $(subst ~,,$@) ARGS="-d"
 
-.PHONY: %
-%: ;
+endif

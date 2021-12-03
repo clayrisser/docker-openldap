@@ -3,7 +3,7 @@
 # File Created: 15-08-2021 01:53:18
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 11-11-2021 03:19:39
+# Last Modified: 03-12-2021 05:38:06
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
 # Silicon Hills LLC (c) Copyright 2021
@@ -23,23 +23,23 @@
 version: "3.7"
 
 services:
-  ldap:
-    container_name: ${NAME}
+  openldap:
     image: ${IMAGE}:latest
     command: "--loglevel debug"
     domainname: example.com
-    hostname: ldap
+    hostname: openldap
     stdin_open: true
     tty: true
     ports:
-      - 389:389
-      - 636:636
+      - 11389:389
+      - 11636:636
     environment:
       LDAP_ADMIN_PASSWORD: P@ssw0rd
       LDAP_BACKEND: "mdb"
       LDAP_CONFIG_PASSWORD: P@ssw0rd
       LDAP_DOMAIN: example.org
       LDAP_ORGANISATION: "Example Inc."
+      LDAP_SYNCREPL: 'true'
     volumes:
       - openldap:/var/lib/ldap
       - openldap-config:/etc/ldap/slapd.d
@@ -47,22 +47,21 @@ services:
   phpldapadmin:
     image: osixia/phpldapadmin:0.9.0
     command: "--loglevel debug"
-    container_name: phpldapadmin
     environment:
       PHPLDAPADMIN_HTTPS: "false"
       PHPLDAPADMIN_LDAP_HOSTS: |
         #PYTHON2BASH:[
           {'openldap': [
             {'server': [
-              {'host': 'ldap://ldap'},
+              {'host': 'ldap://openldap'},
             ]},
             {'login': [{'bind_id': 'cn=admin,dc=example,dc=org'}]}
           ]}
         ]
     ports:
-      - 8080:80
+      - 18080:80
     depends_on:
-      - ldap
+      - openldap
 
 volumes:
   openldap:
