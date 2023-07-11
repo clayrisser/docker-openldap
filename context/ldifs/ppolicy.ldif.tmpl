@@ -5,66 +5,54 @@
 # https://www.openldap.org/lists/openldap-technical/201608/msg00078.html
 # https://www.redpill-linpro.com/techblog/2016/08/16/ldap-password-hash.html
 
-{{- if (not (eq (getenv "LDAP_HASH_PASSWORD") "")) }}
-{{- if (not (eq (toUpper (getenv "LDAP_HASH_PASSWORD")) "FALSE")) }}
-{{- if (not (eq (toUpper (getenv "LDAP_HASH_PASSWORD")) "NONE")) }}
-
-dn: cn=module{0},cn=config
+<% "$( ([ "$LDAP_HASH_PASSWORD" = "" ] || [ "$LDAP_HASH_PASSWORD" = "0" ] || [ "$LDAP_HASH_PASSWORD" = "NONE" ]) && true || echo \
+"dn: cn=module{0},cn=config
 changetype: modify
 add: olcModuleLoad
 olcModuleLoad: ppolicy
 
 dn: cn=config
 changetype: modify
-{{- if (eq (toUpper (getenv "LDAP_HASH_PASSWORD")) "SSHA") }}
-replace: olcPasswordHash
-olcPasswordHash: {SSHA}
-{{- else if (eq (toUpper (getenv "LDAP_HASH_PASSWORD")) "CRYPT") }}
-replace: olcPasswordHash
-olcPasswordHash: {CRYPT}
-{{- else if (eq (toUpper (getenv "LDAP_HASH_PASSWORD")) "SHA256CRYPT") }}
-replace: olcPasswordCryptSaltFormat
-olcPasswordCryptSaltFormat: $5$%.16s
+$([ "$LDAP_HASH_PASSWORD" = "SSHA" ] && echo \
+"replace: olcPasswordHash
+olcPasswordHash: {SSHA}" || \
+echo "$([ "$LDAP_HASH_PASSWORD" = "CRYPT" ] && echo \
+"replace: olcPasswordHash
+olcPasswordHash: {CRYPT}" || \
+echo "$([ "$LDAP_HASH_PASSWORD" = "SHA256CRYPT" ] && echo \
+"replace: olcPasswordCryptSaltFormat
+olcPasswordCryptSaltFormat: \$5\$%.16s
 -
 replace: olcPasswordHash
-olcPasswordHash: {CRYPT}
-{{- else }}
-replace: olcPasswordCryptSaltFormat
-olcPasswordCryptSaltFormat: $6$%.16s
--
-replace: olcPasswordHash
-olcPasswordHash: {CRYPT}
-{{- end }}
+olcPasswordHash: {CRYPT}" || true )")")
 
 dn: olcDatabase={-1}frontend,cn=config
 changetype: modify
-{{- if (eq (toUpper (getenv "LDAP_HASH_PASSWORD")) "SSHA") }}
-replace: olcPasswordHash
-olcPasswordHash: {SSHA}
-{{- else if (eq (toUpper (getenv "LDAP_HASH_PASSWORD")) "CRYPT") }}
-replace: olcPasswordHash
-olcPasswordHash: {CRYPT}
-{{- else if (eq (toUpper (getenv "LDAP_HASH_PASSWORD")) "SHA256CRYPT") }}
-replace: olcPasswordHash
-olcPasswordHash: {CRYPT}
-{{- else }}
-replace: olcPasswordHash
-olcPasswordHash: {CRYPT}
-{{- end }}
+$([ "$LDAP_HASH_PASSWORD" = "SSHA" ] && echo \
+"replace: olcPasswordHash
+olcPasswordHash: {SSHA}" || \
+echo "$([ "$LDAP_HASH_PASSWORD" = "CRYPT" ] && echo \
+"replace: olcPasswordHash
+olcPasswordHash: {CRYPT}" || \
+echo "$([ "$LDAP_HASH_PASSWORD" = "SHA256CRYPT" ] && echo \
+"replace: olcPasswordHash
+olcPasswordHash: {CRYPT}" || echo \
+"replace: olcPasswordHash
+olcPasswordHash: {CRYPT}")")")
 
-dn: olcOverlay={2}ppolicy,olcDatabase={1}{{ getenv "LDAP_BACKEND" }},cn=config
+dn: olcOverlay={2}ppolicy,olcDatabase={1}${LDAP_BACKEND},cn=config
 objectClass: olcOverlayConfig
 objectClass: olcPPolicyConfig
 olcOverlay: {2}ppolicy
 olcPPolicyHashCleartext: TRUE
-olcPPolicyDefault: cn=default,ou=ppolicy,{{ getenv "LDAP_BASE_DN" }}
+olcPPolicyDefault: cn=default,ou=ppolicy,${LDAP_BASE_DN}
 
-dn: ou=ppolicy,{{ getenv "LDAP_BASE_DN" }}
+dn: ou=ppolicy,${LDAP_BASE_DN}
 objectclass: organizationalUnit
 objectclass: top
 ou: ppolicy
 
-dn: cn=default,ou=ppolicy,{{ getenv "LDAP_BASE_DN" }}
+dn: cn=default,ou=ppolicy,${LDAP_BASE_DN}
 changetype: add
 objectClass: device
 objectClass: pwdPolicy
@@ -83,8 +71,4 @@ pwdMaxAge: 0
 pwdMaxFailure: 5
 pwdMinLength: 6
 pwdMustChange: FALSE
-pwdSafeModify: FALSE
-
-{{- end }}
-{{- end }}
-{{- end }}
+pwdSafeModify: FALSE")" %>

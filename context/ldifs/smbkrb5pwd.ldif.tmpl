@@ -1,23 +1,18 @@
 # https://github.com/opinsys/smbkrb5pwd
 
-{{- if (not (eq (getenv "LDAP_SMBKRB5PWD") "")) }}
-{{- if (not (eq (toUpper (getenv "LDAP_SMBKRB5PWD")) "FALSE")) }}
-
-dn: cn=module{0},cn=config
+<% "$( ([ "$LDAP_SMBKRB5PWD" = "" ] || [ "$LDAP_SMBKRB5PWD" = "0" ]) && true || echo \
+"dn: cn=module{0},cn=config
 changetype: modify
 add: olcModuleLoad
 olcModuleLoad: smbkrb5pwd
 # olcModuleLoad: smbkrb5pwd_srv
 
-dn: olcOverlay={0}smbkrb5pwd,olcDatabase={1}{{ getenv "LDAP_BACKEND" }},cn=config
+dn: olcOverlay={0}smbkrb5pwd,olcDatabase={1}${LDAP_BACKEND},cn=config
 objectClass: olcOverlayConfig
 objectClass: olcSmbKrb5PwdConfig
 olcOverlay: {0}smbkrb5pwd
 olcSmbKrb5PwdEnable: samba
 olcSmbKrb5PwdEnable: krb5
 olcSmbKrb5PwdMustChange: 2592012
-olcSmbKrb5PwdKrb5Realm: {{ toUpper (getenv "KERBEROS_REALM") }}
-olcSmbKrb5PwdRequiredClass: posixAccount
-
-{{- end }}
-{{- end }}
+olcSmbKrb5PwdKrb5Realm: ${KERBEROS_REALM}
+olcSmbKrb5PwdRequiredClass: posixAccount")" %>

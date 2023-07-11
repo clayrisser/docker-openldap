@@ -1,17 +1,12 @@
-{{- if (not (eq (getenv "LDAP_SYNCREPL") "")) }}
-{{- if (not (eq (toUpper (getenv "LDAP_SYNCREPL")) "FALSE")) }}
-
-dn: cn=module{0},cn=config
+<% "$( ([ "$LDAP_SYNCREPL" = "" ] || [ "$LDAP_SYNCREPL" = "0" ]) && true || echo \
+"dn: cn=module{0},cn=config
 changetype: modify
 add: olcModuleLoad
 olcModuleLoad: syncprov
 
-dn: olcOverlay={2}syncprov,olcDatabase={1}{{ getenv "LDAP_BACKEND" }},cn=config
+dn: olcOverlay={2}syncprov,olcDatabase={1}${LDAP_BACKEND},cn=config
 objectClass: olcOverlayConfig
 objectClass: olcSyncProvConfig
 olcOverlay: {2}syncprov
 olcSpCheckpoint: 100 10
-olcSpSessionLog: 100
-
-{{- end }}
-{{- end }}
+olcSpSessionLog: 100")" %>

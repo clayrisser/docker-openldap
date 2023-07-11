@@ -5,7 +5,7 @@
 # File Created: 11-07-2023 13:26:41
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 11-07-2023 13:26:49
+# Last Modified: 11-07-2023 14:14:16
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
 # BitSpur (c) Copyright 2021 - 2023
@@ -29,7 +29,7 @@ $(cat $1 | \
     sed 's|\\|\\\\|g' | \
     sed 's|`|\\`|g' | \
     sed 's|\$|\\\$|g' | \
-    sed "s|${OPEN:-<%}|\`eval echo |g" | \
+    sed "s|${OPEN:-<%}|\`echo |g" | \
     sed "s|${CLOSE:-%>}| 2>/dev/null \`|g")
 $EOF
 EOF
