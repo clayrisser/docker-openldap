@@ -1,12 +1,14 @@
-# File: /Makefile
+#!/bin/sh
+
+# File: /context/tmpl.sh
 # Project: docker-openldap
-# File Created: 24-06-2021 04:03:49
+# File Created: 11-07-2023 13:26:41
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 11-07-2023 12:30:28
+# Last Modified: 11-07-2023 13:26:49
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
-# BitSpur (c) Copyright 2021
+# BitSpur (c) Copyright 2021 - 2023
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,16 +22,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-include mkpm.mk
-ifneq (,$(MKPM_READY))
-include $(MKPM)/gnu
-
-export DOCKER_COMPOSE := docker-compose
-export CONTEXT := context
-export NAME ?= docker-openldap
-export REGISTRY ?= registry.gitlab.com/bitspur/rock8s
-export VERSION ?= 2.4.57
-
-include $(MKPM)/docker
-
-endif
+EOF=EOF
+exec cat <<EOF | sh
+cat <<EOF
+$(cat $1 | \
+    sed 's|\\|\\\\|g' | \
+    sed 's|`|\\`|g' | \
+    sed 's|\$|\\\$|g' | \
+    sed "s|${OPEN:-<%}|\`eval echo |g" | \
+    sed "s|${CLOSE:-%>}| 2>/dev/null \`|g")
+$EOF
+EOF

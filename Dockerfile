@@ -3,10 +3,10 @@
 # File Created: 15-08-2021 01:53:18
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 03-12-2021 09:24:48
+# Last Modified: 11-07-2023 13:57:29
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
-# Silicon Hills LLC (c) Copyright 2021
+# BitSpur (c) Copyright 2021
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,15 +20,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM osixia/openldap:1.5.0 as builder
+FROM bitnami/openldap:2.5.15 as builder
 
 WORKDIR /tmp
 
+USER 0
+
 # setup openldap build environment
-RUN echo "deb-src http://deb.debian.org/debian buster main" >> /etc/apt/sources.list && \
-    echo "deb-src http://security.debian.org/debian-security buster/updates main" >> /etc/apt/sources.list && \
-    echo "deb-src http://deb.debian.org/debian buster-updates main" >> /etc/apt/sources.list && \
-    echo "deb-src http://ftp.debian.org/debian buster-backports main" >> /etc/apt/sources.list
+RUN echo "deb-src http://deb.debian.org/debian bullseye main" >> /etc/apt/sources.list && \
+    echo "deb-src http://security.debian.org bullseye-security main" >> /etc/apt/sources.list && \
+    echo "deb-src http://deb.debian.org/debian bullseye-updates main" >> /etc/apt/sources.list
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     apt-utils \
     build-essential \
@@ -38,25 +39,27 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     libkrb5-dev \
     libssl-dev \
     make \
+    schema2ldif \
     unzip
-RUN apt-get build-dep slapd=2.4.57 -y
-
-# get confd
-RUN curl -LO https://github.com/kelseyhightower/confd/releases/download/v0.16.0/confd-0.16.0-linux-amd64 && \
-    mv confd-0.16.0-linux-amd64 confd
-
-RUN echo 3 > /dev/null # nonce
-RUN mkdir -p debs
+RUN apt-get build-dep slapd -y
+RUN mkdir -p debs && \
+    apt-get source slapd && \
+    mv $(ls | grep -E "^openldap[^_].*") openldap
 
 # prepare hello_world module
 RUN curl -L -o hello_world.tar.gz \
-    https://gitlab.com/bitspur/community/hello-world-openldap-overlay/-/archive/main/hello-world-openldap-overlay-main.tar.gz && \
-    tar -xzvf hello_world.tar.gz && mv hello-world-openldap-overlay-main hello_world && \
-    make -s -C hello_world prepare WORKDIR=..
+    https://gitlab.com/bitspur/rock8s/hello-world-openldap-overlay/-/archive/main/hello-world-openldap-overlay-main.tar.gz && \
+    tar -xzvf hello_world.tar.gz && \
+    rm -rf openldap/contrib/slapd-modules/hello_world && \
+    mv hello-world-openldap-overlay-main/src openldap/contrib/slapd-modules/hello_world && \
+    sed -i 's|^CONTRIB_MODULES = |CONTRIB_MODULES = hello_world |g' openldap/debian/rules && \
+    echo "usr/lib/ldap/hello_world.so*" >> openldap/debian/slapd.install && \
+    echo "usr/lib/ldap/hello_world.la" >> openldap/debian/slapd.install
 
 # prepare mbkrb5pwd module
 RUN curl -L -o mbkrb5pwd.zip https://codeload.github.com/opinsys/smbkrb5pwd/zip/refs/heads/master && \
     unzip mbkrb5pwd.zip && \
+    rm -rf openldap/contrib/slapd-modules/smbkrb5pwd && \
     mv smbkrb5pwd-master openldap/contrib/slapd-modules/smbkrb5pwd && \
     sed -i 's|^CONTRIB_MODULES = |CONTRIB_MODULES = smbkrb5pwd |g' openldap/debian/rules && \
     echo "usr/lib/ldap/smbkrb5pwd.so*" >> openldap/debian/slapd.install && \
@@ -65,53 +68,87 @@ RUN curl -L -o mbkrb5pwd.zip https://codeload.github.com/opinsys/smbkrb5pwd/zip/
 # prepare mbkrb5pwd_srv module
 RUN curl -L -o mbkrb5pwd_srv.zip https://codeload.github.com/opinsys/smbkrb5pwd/zip/refs/heads/no_kadmin && \
     unzip mbkrb5pwd_srv.zip && \
+    rm -rf openldap/contrib/slapd-modules/smbkrb5pwd_srv && \
     mv smbkrb5pwd-no_kadmin openldap/contrib/slapd-modules/smbkrb5pwd_srv && \
     sed -i 's|^CONTRIB_MODULES = |CONTRIB_MODULES = smbkrb5pwd_srv |g' openldap/debian/rules && \
     echo "usr/lib/ldap/smbkrb5pwd_srv.so*" >> openldap/debian/slapd.install && \
     echo "usr/lib/ldap/smbkrb5pwd_srv.la" >> openldap/debian/slapd.install
 
 # compile openldap
-RUN make -s -C hello_world build WORKDIR=..
-
-RUN apt-get -y update && \
-    (dpkg -i /tmp/debs/*.deb || true) && \
+RUN echo --enable-monitor >> openldap/debian/configure.options && \
+    cd openldap && \
+    CONFIG="--enable-monitor" \
+    DEB_BUILD_OPTIONS='nocheck' dpkg-buildpackage -b -uc -us -j$(nproc) && \
+    mv ../*.deb /tmp/debs
+RUN (dpkg -i /tmp/debs/*.deb || true) && \
     LC_ALL=C DEBIAN_FRONTEND=noninteractive apt-get install -f -y && \
     dpkg -i /tmp/debs/*.deb
 
-FROM osixia/openldap:1.5.0
+# convert schemas to ldif
+COPY schemas /tmp/schemas
+RUN mkdir -p ldif-schemas && for s in $(ls /tmp/schemas); do \
+    if echo "$s" | sed -n '/\.schema$/p' >/dev/null; then \
+    echo converting "$s" to "$(basename schemas/$s .schema).ldif" && \
+    schema2ldif "schemas/$s" > ldif-schemas/$(basename schemas/$s .schema).ldif; \
+    elif echo "$s" | sed -n '/\.ldif$/p' >/dev/null; then \
+    cp "schemas/$s" ldif-schemas/$s; \
+    fi \
+    done
 
-COPY --from=builder /tmp/confd /usr/local/bin/confd
+FROM bitnami/openldap:2.5.15
+
+USER 0
+
 COPY --from=builder /tmp/debs /tmp/debs
-COPY --from=builder /usr/lib/ldap /tmp/lib/ldap
+COPY --from=builder /tmp/ldif-schemas /schemas
+COPY ldifs /ldifs
+COPY tmpl.sh /usr/local/bin/tmpl
 
-ARG OPENLDAP_PACKAGE_VERSION=2.4.57
-
-# RUN apt-get -y update && \
-#     (dpkg -i /tmp/debs/*.deb || true) && \
-#     LC_ALL=C DEBIAN_FRONTEND=noninteractive apt-get install -f -y && \
-#     dpkg -i /tmp/debs/*.deb && \
-#     apt-get clean && \
-#     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
-#     chmod +x /usr/local/bin/confd
-
-RUN apt-get clean && \
-    cp -rn /tmp/lib/ldap/* /usr/lib/ldap && \
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    curl \
+    libkadm5clnt-mit12 \
+    libkadm5srv-mit12 \
+    libkadm5srv8-heimdal \
+    libkrb5-26-heimdal \
+    slapd \
+    slapd-contrib && \
+    dpkg -i /tmp/debs/*.deb && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
-    chmod +x /usr/local/bin/confd && \
-    mkdir -p /home/openldap /var/log/slapd/auditlog && \
-    chown -R openldap:openldap /home/openldap /var/log/slapd/auditlog
+    chmod +x /usr/local/bin/tmpl && \
+    mv /opt/bitnami/scripts/openldap/entrypoint.sh /opt/bitnami/scripts/openldap/_entrypoint.sh
 
-ADD bootstrap /container/service/slapd/assets/config/bootstrap
-ADD templates /container/service/slapd/assets/config/templates
-ADD entrypoint.sh /usr/local/sbin/entrypoint
+COPY entrypoint.sh /opt/bitnami/scripts/openldap/entrypoint.sh
 
-RUN chmod +x /usr/local/sbin/entrypoint
+RUN chmod +x /opt/bitnami/scripts/openldap/entrypoint.sh && \
+    export LDAP_BASE_DIR="/opt/bitnami/openldap" && \
+    export PATH="/usr/sbin:/usr/bin:$PATH" && \
+    for f in $(ls ${LDAP_BASE_DIR}/bin); do \
+    rm ${LDAP_BASE_DIR}/bin/$f && \
+    ln -s $(which $f) ${LDAP_BASE_DIR}/bin/$f; \
+    done &&  \
+    for f in $(ls ${LDAP_BASE_DIR}/sbin); do \
+    rm ${LDAP_BASE_DIR}/sbin/$f && \
+    ln -s $(which $f) ${LDAP_BASE_DIR}/sbin/$f; \
+    done && \
+    rm -rf /etc/ldap && \
+    mv ${LDAP_BASE_DIR}/etc /etc/ldap && \
+    ln -s /etc/ldap ${LDAP_BASE_DIR}/etc && \
+    rm -rf /usr/share/slapd && \
+    mv ${LDAP_BASE_DIR}/share /usr/share/slapd && \
+    ln -s /usr/share/slapd ${LDAP_BASE_DIR}/share && \
+    rm -rf ${LDAP_BASE_DIR}/lib && \
+    ln -s /usr/lib/ldap ${LDAP_BASE_DIR}/lib && \
+    rm -rf ${LDAP_BASE_DIR}/libexec && \
+    ln -s /usr/lib/ldap ${LDAP_BASE_DIR}/libexec && \
+    rm -rf ${LDAP_BASE_DIR}/include && \
+    ln -s /usr/include ${LDAP_BASE_DIR}/include && \
+    mkdir -p /ldifs /schemas && \
+    chmod -R 775 /ldifs /schemas
 
-ENTRYPOINT [ "/bin/sh", "/usr/local/sbin/entrypoint" ]
-
-ENV LDAP_AUDITLOG=FALSE \
-    LDAP_AUDITLOG_FILE=/var/log/slapd/auditlog/auditlog.log \
-    LDAP_AUDITLOG_TRUNCATE=TRUE \
-    LDAP_HASH_PASSWORD=SHA512CRYPT \
-    LDAP_SMBKRB5PWD=FALSE \
-    LDAP_SYNCREPL=FALSE
+USER 1001
+LABEL org.opencontainers.image.version="2.4.57"
+ENV APP_VERSION="2.4.57" \
+    BITNAMI_DEBUG=true \
+    LDAP_CUSTOM_LDIF_DIR=/ldifs \
+    LDAP_CUSTOM_SCHEMA_DIR=/schemas \
+    LDAP_LOGLEVEL=256

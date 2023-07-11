@@ -1,12 +1,12 @@
 # File: /mkpm.mk
 # Project: docker-openldap
-# File Created: 03-12-2021 05:10:20
+# File Created: 11-07-2023 08:08:28
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 03-12-2021 05:10:28
+# Last Modified: 11-07-2023 08:11:12
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
-# Silicon Hills LLC (c) Copyright 2021
+# BitSpur (c) Copyright 2021 - 2023
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,29 +20,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-MKPM_PACKAGES := \
-	docker=0.0.7 \
+export MKPM_PACKAGES_DEFAULT := \
+	docker=0.1.7 \
 	gnu=0.0.3
 
-MKPM_REPOS := \
-	https://gitlab.com/bitspur/community/mkpm-stable.git
+export MKPM_REPO_DEFAULT := \
+	https://gitlab.com/risserlabs/community/mkpm-stable.git
 
 ############# MKPM BOOTSTRAP SCRIPT BEGIN #############
-MKPM_BOOTSTRAP := https://bitspur.gitlab.io/community/mkpm/bootstrap.mk
+MKPM_BOOTSTRAP := https://gitlab.com/api/v4/projects/29276259/packages/generic/mkpm/0.3.0/bootstrap.mk
+export PROJECT_ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 NULL := /dev/null
 TRUE := true
 ifneq ($(patsubst %.exe,%,$(SHELL)),$(SHELL))
 	NULL = nul
 	TRUE = type nul
 endif
--include .mkpm/.bootstrap.mk
-.mkpm/.bootstrap.mk:
-	@mkdir .mkpm 2>$(NULL) || $(TRUE)
-	@cd .mkpm && \
-		$(shell curl --version >$(NULL) 2>$(NULL) && \
+-include $(PROJECT_ROOT)/.mkpm/.bootstrap.mk
+$(PROJECT_ROOT)/.mkpm/.bootstrap.mk:
+	@mkdir $(@D) 2>$(NULL) || $(TRUE)
+	@$(shell curl --version >$(NULL) 2>$(NULL) && \
 			echo curl -L -o || \
 			echo wget --content-on-error -O) \
-		.bootstrap.mk $(MKPM_BOOTSTRAP) >$(NULL)
+		$@ $(MKPM_BOOTSTRAP) >$(NULL)
 ############## MKPM BOOTSTRAP SCRIPT END ##############
-
--include $(PROJECT_ROOT)/python.mk
