@@ -3,7 +3,7 @@
 # File Created: 15-08-2021 01:53:18
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 11-07-2023 15:00:52
+# Last Modified: 11-07-2023 18:54:40
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
 # BitSpur (c) Copyright 2021
@@ -88,10 +88,10 @@ RUN (dpkg -i /tmp/debs/*.deb || true) && \
 # convert schemas to ldif
 COPY schemas /tmp/schemas
 RUN mkdir -p ldif-schemas && for s in $(ls /tmp/schemas); do \
-    if echo "$s" | sed -n '/\.schema$/p' >/dev/null; then \
+    if echo "$s" | grep -q '\.schema$'; then \
     echo converting "$s" to "$(basename schemas/$s .schema).ldif" && \
     schema2ldif "schemas/$s" > ldif-schemas/$(basename schemas/$s .schema).ldif; \
-    elif echo "$s" | sed -n '/\.ldif$/p' >/dev/null; then \
+    elif ( (echo "$s" | grep -q '\.ldif$') || (echo "$s" | grep -q '\.tmpl$') ); then \
     cp "schemas/$s" ldif-schemas/$s; \
     fi \
     done
@@ -147,9 +147,11 @@ RUN chmod +x /opt/bitnami/scripts/openldap/entrypoint.sh && \
     ln -s /usr/lib/ldap ${LDAP_BASE_DIR}/libexec && \
     rm -rf ${LDAP_BASE_DIR}/include && \
     ln -s /usr/include ${LDAP_BASE_DIR}/include && \
+    chmod -R 775 /ldifs /schemas /opt/bitnami/openldap/share && \
     mkdir -p /ldifs /schemas && \
-    chmod -R 775 /ldifs /schemas /opt/bitnami/openldap/share
+    chown -R 1001:1001 /var/lib/ldap /etc/ldap /usr/share/slapd
 
+USER 1001
 LABEL org.opencontainers.image.version="2.4.57"
 ENV APP_VERSION="2.4.57" \
     BITNAMI_DEBUG=true \

@@ -5,7 +5,7 @@
 # File Created: 11-07-2023 13:29:55
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 11-07-2023 13:59:01
+# Last Modified: 11-07-2023 18:23:10
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
 # BitSpur (c) Copyright 2021 - 2023
@@ -23,22 +23,22 @@
 # limitations under the License.
 
 if [ -d /tmp/ldifs ]; then
-    cp -r /tmp/ldifs/* /ldifs
+    cp -r /tmp/ldifs/* $LDAP_CUSTOM_LDIF_DIR
 fi
 if [ -d /tmp/schemas ]; then
-    cp -r /tmp/schemas/* /schemas
+    cp -r /tmp/schemas/* $LDAP_CUSTOM_SCHEMA_DIR
 fi
 
-for l in $(ls ldifs); do
-    if echo "$l" | sed -n '/\.tmpl$/p' >/dev/null; then
-        tmpl ldifs/$l > ldifs/$(echo "$l" | sed 's|\.tmpl$||')
-        rm -rf ldifs/$l
+for l in $(ls $LDAP_CUSTOM_LDIF_DIR); do
+    if echo "$l" | grep -q '\.tmpl$'; then
+        tmpl $LDAP_CUSTOM_LDIF_DIR/$l > $LDAP_CUSTOM_LDIF_DIR/$(echo "$l" | sed 's|\.tmpl$||')
+        rm -rf $LDAP_CUSTOM_LDIF_DIR/$l
     fi
 done
-for s in $(ls schemas); do
-    if echo "$s" | sed -n '/\.tmpl$/p' >/dev/null; then
-        tmpl schemas/$s > schemas/$(echo "$s" | sed 's|\.tmpl$||')
-        rm -rf schemas/$s
+for s in $(ls $LDAP_CUSTOM_SCHEMA_DIR); do
+    if echo "$s" | grep -q '\.tmpl$'; then
+        tmpl $LDAP_CUSTOM_SCHEMA_DIR/$s > $LDAP_CUSTOM_SCHEMA_DIR/$(echo "$s" | sed 's|\.tmpl$||')
+        rm -rf $LDAP_CUSTOM_SCHEMA_DIR/$s
     fi
 done
 
