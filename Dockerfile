@@ -3,7 +3,7 @@
 # File Created: 15-08-2021 01:53:18
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 11-07-2023 13:57:29
+# Last Modified: 11-07-2023 15:00:52
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
 # BitSpur (c) Copyright 2021
@@ -76,6 +76,7 @@ RUN curl -L -o mbkrb5pwd_srv.zip https://codeload.github.com/opinsys/smbkrb5pwd/
 
 # compile openldap
 RUN echo --enable-monitor >> openldap/debian/configure.options && \
+    echo --enable-mdb >> openldap/debian/configure.options && \
     cd openldap && \
     CONFIG="--enable-monitor" \
     DEB_BUILD_OPTIONS='nocheck' dpkg-buildpackage -b -uc -us -j$(nproc) && \
@@ -101,7 +102,6 @@ USER 0
 
 COPY --from=builder /tmp/debs /tmp/debs
 COPY --from=builder /tmp/ldif-schemas /schemas
-COPY ldifs /ldifs
 COPY tmpl.sh /usr/local/bin/tmpl
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
@@ -117,18 +117,23 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     chmod +x /usr/local/bin/tmpl && \
     mv /opt/bitnami/scripts/openldap/entrypoint.sh /opt/bitnami/scripts/openldap/_entrypoint.sh
 
+COPY ldifs /ldifs
 COPY entrypoint.sh /opt/bitnami/scripts/openldap/entrypoint.sh
 
 RUN chmod +x /opt/bitnami/scripts/openldap/entrypoint.sh && \
     export LDAP_BASE_DIR="/opt/bitnami/openldap" && \
     export PATH="/usr/sbin:/usr/bin:$PATH" && \
     for f in $(ls ${LDAP_BASE_DIR}/bin); do \
+    if [ "$(which $f)" = "/usr/bin/$f" ]; then \
     rm ${LDAP_BASE_DIR}/bin/$f && \
     ln -s $(which $f) ${LDAP_BASE_DIR}/bin/$f; \
+    fi; \
     done &&  \
     for f in $(ls ${LDAP_BASE_DIR}/sbin); do \
+    if [ "$(which $f)" = "/usr/sbin/$f" ]; then \
     rm ${LDAP_BASE_DIR}/sbin/$f && \
     ln -s $(which $f) ${LDAP_BASE_DIR}/sbin/$f; \
+    fi; \
     done && \
     rm -rf /etc/ldap && \
     mv ${LDAP_BASE_DIR}/etc /etc/ldap && \
@@ -143,9 +148,8 @@ RUN chmod +x /opt/bitnami/scripts/openldap/entrypoint.sh && \
     rm -rf ${LDAP_BASE_DIR}/include && \
     ln -s /usr/include ${LDAP_BASE_DIR}/include && \
     mkdir -p /ldifs /schemas && \
-    chmod -R 775 /ldifs /schemas
+    chmod -R 775 /ldifs /schemas /opt/bitnami/openldap/share
 
-USER 1001
 LABEL org.opencontainers.image.version="2.4.57"
 ENV APP_VERSION="2.4.57" \
     BITNAMI_DEBUG=true \
