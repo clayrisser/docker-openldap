@@ -3,7 +3,7 @@
 # File Created: 15-08-2021 01:53:18
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 12-07-2023 16:58:23
+# Last Modified: 12-07-2023 17:00:07
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
 # BitSpur (c) Copyright 2021
@@ -31,7 +31,7 @@ services:
       - 389:1389
     environment:
       LDAP_ADMIN_PASSWORD: pass
-      LDAP_HASH_PASSWORD: CRYPT
+      LDAP_HASH_PASSWORD: SHA512CRYPT
 
   phpldapadmin:
     container_name: phpldapadmin
