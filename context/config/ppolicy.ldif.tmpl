@@ -5,6 +5,15 @@
 # https://www.openldap.org/lists/openldap-technical/201608/msg00078.html
 # https://www.redpill-linpro.com/techblog/2016/08/16/ldap-password-hash.html
 
+# LDAP_HASH_PASSWORD:
+#   - NONE
+#   - SSHA
+#   - MD5
+#   - CRYPT
+#   - MD5CRYPT
+#   - SHA256CRYPT
+#   - SHA512CRYPT
+
 <% "$( ([ "$LDAP_HASH_PASSWORD" = "" ] || [ "$LDAP_HASH_PASSWORD" = "0" ] || [ "$LDAP_HASH_PASSWORD" = "NONE" ]) && true || echo \
 "dn: cn=module{0},cn=config
 changetype: modify
@@ -13,32 +22,27 @@ olcModuleLoad: ppolicy
 
 dn: cn=config
 changetype: modify
-$([ "$LDAP_HASH_PASSWORD" = "SSHA" ] && echo \
-"replace: olcPasswordHash
-olcPasswordHash: {SSHA}" || \
-echo "$([ "$LDAP_HASH_PASSWORD" = "CRYPT" ] && echo \
-"replace: olcPasswordHash
-olcPasswordHash: {CRYPT}" || \
-echo "$([ "$LDAP_HASH_PASSWORD" = "SHA256CRYPT" ] && echo \
-"replace: olcPasswordCryptSaltFormat
-olcPasswordCryptSaltFormat: \$5\$%.16s
--
 replace: olcPasswordHash
-olcPasswordHash: {CRYPT}" || true )")")
+olcPasswordHash: {$([ "$LDAP_HASH_PASSWORD" = "SSHA" ] && echo "SSHA" || \
+  echo $([ "$LDAP_HASH_PASSWORD" = "MD5" ] && echo "MD5" || \
+  echo "CRYPT"))}
+$([ "$LDAP_HASH_PASSWORD" = "SHA256CRYPT" ] && echo \
+"-
+replace: olcPasswordCryptSaltFormat
+olcPasswordCryptSaltFormat: \$5\$%.16s" || echo "$([ "$LDAP_HASH_PASSWORD" = "SHA512CRYPT" ] && echo \
+"-
+replace: olcPasswordCryptSaltFormat
+olcPasswordCryptSaltFormat: \$6\$%.16s" || echo "$([ "$LDAP_HASH_PASSWORD" = "MD5CRYPT" ] && echo \
+"-
+replace: olcPasswordCryptSaltFormat
+olcPasswordCryptSaltFormat: \$1\$%.8s" || true)")")
 
 dn: olcDatabase={-1}frontend,cn=config
 changetype: modify
-$([ "$LDAP_HASH_PASSWORD" = "SSHA" ] && echo \
-"replace: olcPasswordHash
-olcPasswordHash: {SSHA}" || \
-echo "$([ "$LDAP_HASH_PASSWORD" = "CRYPT" ] && echo \
-"replace: olcPasswordHash
-olcPasswordHash: {CRYPT}" || \
-echo "$([ "$LDAP_HASH_PASSWORD" = "SHA256CRYPT" ] && echo \
-"replace: olcPasswordHash
-olcPasswordHash: {CRYPT}" || echo \
-"replace: olcPasswordHash
-olcPasswordHash: {CRYPT}")")")
+replace: olcPasswordHash
+olcPasswordHash: {$([ "$LDAP_HASH_PASSWORD" = "SSHA" ] && echo "SSHA" || \
+  echo $([ "$LDAP_HASH_PASSWORD" = "MD5" ] && echo "MD5" || \
+  echo "CRYPT"))}
 
 dn: olcOverlay={1}ppolicy,olcDatabase={2}mdb,cn=config
 changetype: add

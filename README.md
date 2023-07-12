@@ -59,3 +59,14 @@ ldapsearch -Y EXTERNAL -H ldapi:/// -b cn=config cn=config
 ```sh
 slapcat -n 0 | grep olcModuleLoad
 ```
+
+### Test
+
+#### Default Password Hash
+
+```ldif
+dn: cn=bob,ou=people,dc=example,dc=org
+changetype: modify
+replace: userPassword
+userPassword: P@ssw0rd
+```

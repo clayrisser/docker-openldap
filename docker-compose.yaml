@@ -3,7 +3,7 @@
 # File Created: 15-08-2021 01:53:18
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 12-07-2023 14:56:22
+# Last Modified: 12-07-2023 16:58:23
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
 # BitSpur (c) Copyright 2021
@@ -27,6 +27,8 @@ services:
     container_name: ${NAME}
     image: ${IMAGE}:latest
     hostname: openldap
+    ports:
+      - 389:1389
     environment:
       LDAP_ADMIN_PASSWORD: pass
       LDAP_HASH_PASSWORD: CRYPT
