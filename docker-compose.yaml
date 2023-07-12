@@ -3,7 +3,7 @@
 # File Created: 15-08-2021 01:53:18
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 12-07-2023 12:07:39
+# Last Modified: 12-07-2023 14:56:22
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
 # BitSpur (c) Copyright 2021
@@ -26,18 +26,10 @@ services:
   openldap:
     container_name: ${NAME}
     image: ${IMAGE}:latest
-    # command: "--loglevel debug"
     hostname: openldap
     environment:
-      LDAP_ADMIN_PASSWORD: P@ssw0rd
-      LDAP_CONFIG_PASSWORD: P@ssw0rd
-      LDAP_DOMAIN: example.org
-      LDAP_ORGANISATION: "Example Inc."
-      LDAP_SYNCREPL: "TRUE"
-      LDAP_AUDITLOG: "TRUE"
-    volumes:
-      - openldap:/var/lib/ldap
-      - openldap-config:/etc/ldap/slapd.d
+      LDAP_ADMIN_PASSWORD: pass
+      LDAP_HASH_PASSWORD: CRYPT
 
   phpldapadmin:
     container_name: phpldapadmin
@@ -48,18 +40,12 @@ services:
         #PYTHON2BASH:[
           {'openldap': [
             {'server': [
-              {'host': 'ldap://openldap'},
+              {'host': 'ldap://openldap:1389'}
             ]},
             {'login': [{'bind_id': 'cn=admin,dc=example,dc=org'}]}
           ]}
         ]
     ports:
-      - 18080:80
+      - 8080:80
     depends_on:
       - openldap
-
-volumes:
-  openldap:
-    name: openldap-${NAME}
-  openldap-config:
-    name: openldap-config-${NAME}

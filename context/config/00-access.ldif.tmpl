@@ -1,0 +1,4 @@
+dn: olcDatabase={2}mdb,cn=config
+changetype: modify
+add: olcAccess
+olcAccess: {0}to * by dn.exact=gidNumber=0+uidNumber=<% $(id -u) %>,cn=peercred,cn=external,cn=auth manage by * break

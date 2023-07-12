@@ -40,11 +40,11 @@ olcPasswordHash: {CRYPT}" || echo \
 "replace: olcPasswordHash
 olcPasswordHash: {CRYPT}")")")
 
-dn: olcOverlay={2}ppolicy,olcDatabase={2}mdb,cn=config
+dn: olcOverlay={1}ppolicy,olcDatabase={2}mdb,cn=config
 changetype: add
 objectClass: olcOverlayConfig
 objectClass: olcPPolicyConfig
-olcOverlay: {2}ppolicy
+olcOverlay: {1}ppolicy
 olcPPolicyHashCleartext: TRUE
 olcPPolicyDefault: cn=default,ou=ppolicy,${LDAP_ROOT}
 

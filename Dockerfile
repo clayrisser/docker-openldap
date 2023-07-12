@@ -3,7 +3,7 @@
 # File Created: 15-08-2021 01:53:18
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 12-07-2023 12:33:02
+# Last Modified: 12-07-2023 15:41:14
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
 # BitSpur (c) Copyright 2021
@@ -111,8 +111,9 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     libkadm5srv-mit12 \
     libkadm5srv8-heimdal \
     libkrb5-26-heimdal \
-    slapd \
     slapd-contrib && \
+    (dpkg -i /tmp/debs/*.deb || true) && \
+    LC_ALL=C DEBIAN_FRONTEND=noninteractive apt-get install -f -y && \
     dpkg -i /tmp/debs/*.deb && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
     chmod +x /usr/local/bin/tmpl && \
@@ -136,6 +137,9 @@ RUN chmod +x /opt/bitnami/scripts/openldap/entrypoint.sh && \
     rm ${LDAP_BASE_DIR}/sbin/$f && \
     ln -s $(which $f) ${LDAP_BASE_DIR}/sbin/$f; \
     fi; \
+    done && \
+    for s in $(ls /etc/ldap/schema); do \
+    cp /etc/ldap/schema/$s ${LDAP_BASE_DIR}/etc/schema/$s; \
     done && \
     rm -rf /etc/ldap && \
     mv ${LDAP_BASE_DIR}/etc /etc/ldap && \
@@ -171,4 +175,5 @@ ENV APP_VERSION="2.4.57" \
     LDAP_CUSTOM_SCHEMA_DIR=/opt/bitnami/openldap/schemas \
     LDAP_HASH_PASSWORD=SHA256CRYPT \
     LDAP_LOGLEVEL=256 \
-    LDAP_ROOT=dc=example,dc=org
+    LDAP_ROOT=dc=example,dc=org \
+    LDAP_EXTRA_SCHEMAS=cosine,inetorgperson,nis,ppolicy

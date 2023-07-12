@@ -1,16 +1,6 @@
-dn: <% $LDAP_ROOT %>
-objectClass: dcObject
-objectClass: organization
-o: <% $(echo $LDAP_ROOT | cut -d',' -f1 | cut -d'=' -f2) %>
-dc: <% $(echo $LDAP_ROOT | cut -d',' -f1 | cut -d'=' -f2) %>
-
 dn: ou=people,<% $LDAP_ROOT %>
 objectClass: organizationalUnit
 ou: people
-
-dn: ou=groups,<% $LDAP_ROOT %>
-objectclass: organizationalUnit
-ou: groups
 
 dn: cn=bob,ou=people,<% $LDAP_ROOT %>
 objectClass: inetOrgPerson
