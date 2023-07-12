@@ -4,7 +4,7 @@ changetype: modify
 add: olcModuleLoad
 olcModuleLoad: auditlog
 
-dn: olcOverlay=auditlog,olcDatabase={1}${LDAP_BACKEND},cn=config
+dn: olcOverlay=auditlog,olcDatabase={2}mdb,cn=config
 objectClass: olcOverlayConfig
 objectClass: olcAuditlogConfig
 olcOverlay: auditlog

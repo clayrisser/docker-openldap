@@ -3,7 +3,7 @@
 # File Created: 15-08-2021 01:53:18
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 11-07-2023 08:08:55
+# Last Modified: 12-07-2023 12:07:39
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
 # BitSpur (c) Copyright 2021
@@ -30,7 +30,6 @@ services:
     hostname: openldap
     environment:
       LDAP_ADMIN_PASSWORD: P@ssw0rd
-      LDAP_BACKEND: "mdb"
       LDAP_CONFIG_PASSWORD: P@ssw0rd
       LDAP_DOMAIN: example.org
       LDAP_ORGANISATION: "Example Inc."

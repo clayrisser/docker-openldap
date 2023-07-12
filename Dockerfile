@@ -3,7 +3,7 @@
 # File Created: 15-08-2021 01:53:18
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 11-07-2023 18:54:40
+# Last Modified: 12-07-2023 12:33:02
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
 # BitSpur (c) Copyright 2021
@@ -92,6 +92,7 @@ RUN mkdir -p ldif-schemas && for s in $(ls /tmp/schemas); do \
     echo converting "$s" to "$(basename schemas/$s .schema).ldif" && \
     schema2ldif "schemas/$s" > ldif-schemas/$(basename schemas/$s .schema).ldif; \
     elif ( (echo "$s" | grep -q '\.ldif$') || (echo "$s" | grep -q '\.tmpl$') ); then \
+    echo copying "$s" && \
     cp "schemas/$s" ldif-schemas/$s; \
     fi \
     done
@@ -101,7 +102,7 @@ FROM bitnami/openldap:2.5.15
 USER 0
 
 COPY --from=builder /tmp/debs /tmp/debs
-COPY --from=builder /tmp/ldif-schemas /schemas
+COPY --from=builder /tmp/ldif-schemas /opt/bitnami/openldap/schemas
 COPY tmpl.sh /usr/local/bin/tmpl
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
@@ -117,7 +118,8 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     chmod +x /usr/local/bin/tmpl && \
     mv /opt/bitnami/scripts/openldap/entrypoint.sh /opt/bitnami/scripts/openldap/_entrypoint.sh
 
-COPY ldifs /ldifs
+COPY ldifs /opt/bitnami/openldap/ldifs
+COPY config /opt/bitnami/openldap/config
 COPY entrypoint.sh /opt/bitnami/scripts/openldap/entrypoint.sh
 
 RUN chmod +x /opt/bitnami/scripts/openldap/entrypoint.sh && \
@@ -147,14 +149,26 @@ RUN chmod +x /opt/bitnami/scripts/openldap/entrypoint.sh && \
     ln -s /usr/lib/ldap ${LDAP_BASE_DIR}/libexec && \
     rm -rf ${LDAP_BASE_DIR}/include && \
     ln -s /usr/include ${LDAP_BASE_DIR}/include && \
-    chmod -R 775 /ldifs /schemas /opt/bitnami/openldap/share && \
-    mkdir -p /ldifs /schemas && \
-    chown -R 1001:1001 /var/lib/ldap /etc/ldap /usr/share/slapd
+    mkdir -p /ldifs /schemas /config && \
+    chown -R 1001:1001 \
+    /config \
+    /etc/ldap \
+    /ldifs \
+    /opt/bitnami/openldap/config \
+    /opt/bitnami/openldap/ldifs \
+    /opt/bitnami/openldap/schemas \
+    /schemas \
+    /usr/share/slapd \
+    /var/lib/ldap \
+    /var/run/slapd
 
 USER 1001
 LABEL org.opencontainers.image.version="2.4.57"
 ENV APP_VERSION="2.4.57" \
     BITNAMI_DEBUG=true \
-    LDAP_CUSTOM_LDIF_DIR=/ldifs \
-    LDAP_CUSTOM_SCHEMA_DIR=/schemas \
-    LDAP_LOGLEVEL=256
+    LDAP_CUSTOM_CONFIG_DIR=/opt/bitnami/openldap/config \
+    LDAP_CUSTOM_LDIF_DIR=/opt/bitnami/openldap/ldifs \
+    LDAP_CUSTOM_SCHEMA_DIR=/opt/bitnami/openldap/schemas \
+    LDAP_HASH_PASSWORD=SHA256CRYPT \
+    LDAP_LOGLEVEL=256 \
+    LDAP_ROOT=dc=example,dc=org

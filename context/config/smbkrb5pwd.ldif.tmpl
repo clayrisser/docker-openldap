@@ -7,7 +7,7 @@ add: olcModuleLoad
 olcModuleLoad: smbkrb5pwd
 # olcModuleLoad: smbkrb5pwd_srv
 
-dn: olcOverlay={0}smbkrb5pwd,olcDatabase={1}${LDAP_BACKEND},cn=config
+dn: olcOverlay={0}smbkrb5pwd,olcDatabase={2}mdb,cn=config
 objectClass: olcOverlayConfig
 objectClass: olcSmbKrb5PwdConfig
 olcOverlay: {0}smbkrb5pwd

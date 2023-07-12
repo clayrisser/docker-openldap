@@ -4,7 +4,7 @@ changetype: modify
 add: olcModuleLoad
 olcModuleLoad: syncprov
 
-dn: olcOverlay={2}syncprov,olcDatabase={1}${LDAP_BACKEND},cn=config
+dn: olcOverlay={2}syncprov,olcDatabase={2}mdb,cn=config
 objectClass: olcOverlayConfig
 objectClass: olcSyncProvConfig
 olcOverlay: {2}syncprov

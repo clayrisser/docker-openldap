@@ -5,7 +5,7 @@
 # File Created: 11-07-2023 13:29:55
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 11-07-2023 18:23:10
+# Last Modified: 12-07-2023 12:33:55
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
 # BitSpur (c) Copyright 2021 - 2023
@@ -22,11 +22,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+apply_config() {
+    until ldapwhoami -Y EXTERNAL -H ldapi:/// 2>/dev/null; do
+        sleep 5
+    done
+    for f in $(ls $LDAP_CUSTOM_CONFIG_DIR); do
+        echo ldapmodify -Y EXTERNAL -H ldapi:/// -f $LDAP_CUSTOM_CONFIG_DIR/$f
+        ldapmodify -Y EXTERNAL -H ldapi:/// -f $LDAP_CUSTOM_CONFIG_DIR/$f
+    done
+}
+
 if [ -d /tmp/ldifs ]; then
-    cp -r /tmp/ldifs/* $LDAP_CUSTOM_LDIF_DIR
+    cp -r /ldifs/* $LDAP_CUSTOM_LDIF_DIR
 fi
 if [ -d /tmp/schemas ]; then
-    cp -r /tmp/schemas/* $LDAP_CUSTOM_SCHEMA_DIR
+    cp -r /schemas/* $LDAP_CUSTOM_SCHEMA_DIR
+fi
+if [ -d /tmp/config ]; then
+    cp -r /config/* $LDAP_CUSTOM_CONFIG_DIR
 fi
 
 for l in $(ls $LDAP_CUSTOM_LDIF_DIR); do
@@ -41,5 +54,13 @@ for s in $(ls $LDAP_CUSTOM_SCHEMA_DIR); do
         rm -rf $LDAP_CUSTOM_SCHEMA_DIR/$s
     fi
 done
+for c in $(ls $LDAP_CUSTOM_CONFIG_DIR); do
+    if echo "$c" | grep -q '\.tmpl$'; then
+        tmpl $LDAP_CUSTOM_CONFIG_DIR/$c > $LDAP_CUSTOM_CONFIG_DIR/$(echo "$c" | sed 's|\.tmpl$||')
+        rm -rf $LDAP_CUSTOM_CONFIG_DIR/$c
+    fi
+done
+
+apply_config &
 
 exec /opt/bitnami/scripts/openldap/_entrypoint.sh "$@"
