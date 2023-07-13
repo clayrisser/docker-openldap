@@ -5,7 +5,7 @@
 # File Created: 11-07-2023 13:29:55
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 13-07-2023 16:25:12
+# Last Modified: 13-07-2023 16:26:44
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
 # BitSpur (c) Copyright 2021 - 2023
@@ -41,7 +41,7 @@ for s in $(ls /schemas 2>/dev/null); do
 done
 for m in $(ls /migrations 2>/dev/null); do
     cp -r /migrations/$m $LDAP_CUSTOM_MIGRATIONS_DIR
-fi
+done
 
 for l in $(ls $LDAP_CUSTOM_LDIF_DIR); do
     if echo "$l" | grep -q '\.tmpl$'; then
