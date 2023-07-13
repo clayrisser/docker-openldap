@@ -3,7 +3,7 @@
 # File Created: 15-08-2021 01:53:18
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 12-07-2023 15:41:14
+# Last Modified: 13-07-2023 05:45:20
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
 # BitSpur (c) Copyright 2021
@@ -120,7 +120,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     mv /opt/bitnami/scripts/openldap/entrypoint.sh /opt/bitnami/scripts/openldap/_entrypoint.sh
 
 COPY ldifs /opt/bitnami/openldap/ldifs
-COPY config /opt/bitnami/openldap/config
+COPY migrations /opt/bitnami/openldap/migrations
 COPY entrypoint.sh /opt/bitnami/scripts/openldap/entrypoint.sh
 
 RUN chmod +x /opt/bitnami/scripts/openldap/entrypoint.sh && \
@@ -153,12 +153,12 @@ RUN chmod +x /opt/bitnami/scripts/openldap/entrypoint.sh && \
     ln -s /usr/lib/ldap ${LDAP_BASE_DIR}/libexec && \
     rm -rf ${LDAP_BASE_DIR}/include && \
     ln -s /usr/include ${LDAP_BASE_DIR}/include && \
-    mkdir -p /ldifs /schemas /config && \
+    mkdir -p /ldifs /schemas /migrations && \
     chown -R 1001:1001 \
-    /config \
+    /migrations \
     /etc/ldap \
     /ldifs \
-    /opt/bitnami/openldap/config \
+    /opt/bitnami/openldap/migrations \
     /opt/bitnami/openldap/ldifs \
     /opt/bitnami/openldap/schemas \
     /schemas \
@@ -170,7 +170,7 @@ USER 1001
 LABEL org.opencontainers.image.version="2.4.57"
 ENV APP_VERSION="2.4.57" \
     BITNAMI_DEBUG=true \
-    LDAP_CUSTOM_CONFIG_DIR=/opt/bitnami/openldap/config \
+    LDAP_CUSTOM_MIGRATIONS_DIR=/opt/bitnami/openldap/migrations \
     LDAP_CUSTOM_LDIF_DIR=/opt/bitnami/openldap/ldifs \
     LDAP_CUSTOM_SCHEMA_DIR=/opt/bitnami/openldap/schemas \
     LDAP_HASH_PASSWORD=SHA256CRYPT \
