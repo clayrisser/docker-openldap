@@ -5,7 +5,7 @@
 # File Created: 11-07-2023 13:29:55
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 13-07-2023 07:05:29
+# Last Modified: 13-07-2023 16:25:12
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
 # BitSpur (c) Copyright 2021 - 2023
@@ -33,14 +33,14 @@ apply_migrations() {
     done
 }
 
-if [ "$(ls /ldifs 2>/dev/null)" != "" ]; then
-    cp -r /ldifs/* $LDAP_CUSTOM_LDIF_DIR
-fi
-if [ "$(ls /schemas 2>/dev/null)" != "" ]; then
-    cp -r /schemas/* $LDAP_CUSTOM_SCHEMA_DIR
-fi
-if [ "$(ls /migrations 2>/dev/null)" != "" ]; then
-    cp -r /migrations/* $LDAP_CUSTOM_MIGRATIONS_DIR
+for l in $(ls /ldifs 2>/dev/null); do
+    cp -r /ldifs/$l $LDAP_CUSTOM_LDIF_DIR
+done
+for s in $(ls /schemas 2>/dev/null); do
+    cp -r /schemas/$s $LDAP_CUSTOM_SCHEMA_DIR
+done
+for m in $(ls /migrations 2>/dev/null); do
+    cp -r /migrations/$m $LDAP_CUSTOM_MIGRATIONS_DIR
 fi
 
 for l in $(ls $LDAP_CUSTOM_LDIF_DIR); do
