@@ -15,10 +15,38 @@ You can view additional versions of the image at https://gitlab.com/bitspur/rock
 
 There are several new features that have been added to this image.
 
-### Ldif Migrations
+#### 1. Password hashing
+
+A new environment variable called `LDAP_HASH_PASSWORD` has been added that will automatically setup
+the environment to hash passwords. By default it is set to `SHA512CRYPT`, the strongest hashing
+algorithm available. The available options are the following.
+
+- `NONE`
+- `SSHA`
+- `MD5`
+- `CRYPT`
+- `MD5CRYPT`
+- `SHA256CRYPT`
+- `SHA512CRYPT`
+
+#### 2. Ldif Migrations
 
 The `/ldifs` folder does not support ldif migrations (records with a `changetype`). Instead `/ldifs` can only
 add new records. If you need to modify existing records, put ldif migration files in the `/migrations` folder.
+
+#### 3. Support for .schema extension
+
+The `/schemas` directory can include `.ldif` schemas or `.schema` schemas. You can see some examples
+at [context/schemas](context/schemas).
+
+#### 4. Templating support
+
+The `/schemas`, `/ldifs` and `/migrations` directories all support `.ldif.tmpl` files which will be templated.
+You can see an example at [context/ldifs/00-organization.ldif.tmpl](context/ldifs/00-organization.ldif.tmpl).
+
+#### 5. Support for additional modules and schemas
+
+#### 6. Easily compile custom modules into the image
 
 ## Compatibility
 
@@ -61,7 +89,7 @@ make shell
 
 4. run `slapcat` or `ldapsearch` commands to test and inspect
 
-## Info
+## Supported Modules and Schemas
 
 ### Schemas
 
