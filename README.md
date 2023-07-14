@@ -50,6 +50,8 @@ You can see an example at [context/ldifs/00-organization.ldif.tmpl](context/ldif
 
 #### 5. Support for additional modules and schemas
 
+You can find the list of supported modules and schemas [HERE](#supported-modules-and-schemas)
+
 #### 6. Easily compile custom modules into the image
 
 You can see an example of this in the [Dockerfile](Dockerfile#L49)
