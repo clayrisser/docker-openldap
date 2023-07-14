@@ -99,7 +99,7 @@ make build
 
 4. run `slapcat` or `ldapsearch` commands to test and inspect
 
-   You can reference some useful commands at [openldap-cheatsheet](openldap-cheetsheet.md)
+   You can reference some useful commands at [openldap-cheatsheet](/openldap-cheatsheet.md)
 
 ## Supported Modules and Schemas
 
