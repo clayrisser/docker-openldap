@@ -13,71 +13,71 @@ You can view additional versions of the image at https://gitlab.com/bitspur/rock
 
 ## New Features
 
-There are several new features that have been added to this image.
+   There are several new features that have been added to this image.
 
 #### 1. Password hashing
 
-A new environment variable called `LDAP_HASH_PASSWORD` has been added that will automatically setup
-the environment to hash passwords. By default it is set to `SHA512CRYPT`, the strongest hashing
-algorithm available. The available options are the following.
+   A new environment variable called `LDAP_HASH_PASSWORD` has been added that will automatically setup
+   the environment to hash passwords. By default it is set to `SHA512CRYPT`, the strongest hashing
+   algorithm available. The available options are the following.
 
-- `NONE`
-- `SSHA`
-- `MD5`
-- `CRYPT`
-- `MD5CRYPT`
-- `SHA256CRYPT`
-- `SHA512CRYPT`
+   - `NONE`
+   - `SSHA`
+   - `MD5`
+   - `CRYPT`
+   - `MD5CRYPT`
+   - `SHA256CRYPT`
+   - `SHA512CRYPT`
 
 #### 2. Ldif migrations
 
-The `/ldifs` folder does not support ldif migrations (records with a `changetype`). Instead `/ldifs` can only
-add new records.
+   The `/ldifs` folder does not support ldif migrations (records with a `changetype`). Instead `/ldifs` can only
+   add new records.
 
-If you need to modify existing records, put ldif migration files in the `/migrations` folder.
+   If you need to modify existing records, put ldif migration files in the `/migrations` folder.
 
 #### 3. Support for .schema extension
 
-The `/schemas` directory can include `.ldif` schemas or `.schema` schemas.
+   The `/schemas` directory can include `.ldif` schemas or `.schema` schemas.
 
-You can see some examples at [context/schemas](context/schemas).
+   You can see some examples at [context/schemas](context/schemas).
 
 #### 4. Templating support
 
-The `/schemas`, `/ldifs` and `/migrations` directories all support `.ldif.tmpl` files which will be templated.
+   The `/schemas`, `/ldifs` and `/migrations` directories all support `.ldif.tmpl` files which will be templated.
 
-You can see an example at [context/ldifs/00-organization.ldif.tmpl](context/ldifs/00-organization.ldif.tmpl).
+   You can see an example at [context/ldifs/00-organization.ldif.tmpl](context/ldifs/00-organization.ldif.tmpl).
 
 #### 5. Support for additional modules and schemas
 
-You can find the list of supported modules and schemas [HERE](#supported-modules-and-schemas)
+   You can find the list of supported modules and schemas [HERE](#supported-modules-and-schemas)
 
 #### 6. Easily compile custom modules into the image
 
-You can see an example of this in the [Dockerfile](Dockerfile#L49)
+   You can see an example of this in the [Dockerfile](Dockerfile#L49)
 
 ## Compatibility
 
-This image based on the bitnami openldap image and is mostly compatible with the bitnami openldap image.
+   his image based on the bitnami openldap image and is mostly compatible with the bitnami openldap image.
 
-You can reference the official bitnami openldap image at the links below.
+   You can reference the official bitnami openldap image at the links below.
 
-- https://bitnami.com/stack/openldap/containers
-- https://github.com/bitnami/containers/blob/main/bitnami/openldap/README.md
+   - https://bitnami.com/stack/openldap/containers
+   - https://github.com/bitnami/containers/blob/main/bitnami/openldap/README.md
 
-There are a few important differences though.
+   There are a few important differences though.
 
-1. `LDAP_CUSTOM_SCHEMA_DIR` should not be changed. If you need to add custom schemas they must be placed in the `/schemas` directory.
-2. `LDAP_CUSTOM_LDIF_DIR` should not be changed. If you need to add custom ldifs they must be placed in the `/ldifs` directory.
-3. The version of ldap is different than the version used in bitnami. This is because openldap had to be compiled from scratch to
+   1. `LDAP_CUSTOM_SCHEMA_DIR` should not be changed. If you need to add custom schemas they must be placed in the `/schemas` directory.
+   2. `LDAP_CUSTOM_LDIF_DIR` should not be changed. If you need to add custom ldifs they must be placed in the `/ldifs` directory.
+   3. The version of ldap is different than the version used in bitnami. This is because openldap had to be compiled from scratch to
    add new modules. The most stable way to compile openldap was using the src from debian. This means the version will always match
    the version of the debian release instead of the version provided by bitnami.
 
 ## Build
 
-```sh
-make build
-```
+   ```sh
+   make build
+   ```
 
 ## Debug
 
@@ -91,9 +91,9 @@ make build
 
 3. start a shell to interact with ldap
 
-```sh
-make shell
-```
+   ```sh
+   make shell
+   ```
 
 4. run `slapcat` or `ldapsearch` commands to test and inspect
 
@@ -101,8 +101,8 @@ make shell
 
 ### Schemas
 
-The following list of schemas are included in this release of openldap and can be enabled
-with the `LDAP_EXTRA_SCHEMAS` variable.
+   The following list of schemas are included in this release of openldap and can be enabled
+   with the `LDAP_EXTRA_SCHEMAS` variable.
 
 - collective
 - corba
@@ -123,7 +123,7 @@ with the `LDAP_EXTRA_SCHEMAS` variable.
 
 ### Modules
 
-The following list of modules are compiled in this release of openldap.
+   The following list of modules are compiled in this release of openldap.
 
 - accesslog
 - auditlog
