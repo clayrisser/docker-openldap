@@ -3,7 +3,7 @@
 # File Created: 15-08-2021 01:53:18
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 14-07-2023 08:33:33
+# Last Modified: 14-07-2023 08:46:24
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
 # BitSpur (c) Copyright 2021
@@ -34,7 +34,7 @@ services:
       LDAP_HASH_PASSWORD: SHA512CRYPT
       LDAP_USERS: "user1,user2"
       LDAP_PASSWORDS: "pass1,pass2"
-      LDAP_SKIP_DEFAULT_TREE: "yes"
+      LDAP_SKIP_DEFAULT_TREE: "no"
     volumes:
       - openldap:/bitnami/openldap
 
