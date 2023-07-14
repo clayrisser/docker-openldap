@@ -5,7 +5,7 @@
 # File Created: 11-07-2023 13:29:55
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 13-07-2023 16:36:30
+# Last Modified: 14-07-2023 07:33:09
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
 # BitSpur (c) Copyright 2021 - 2023
@@ -32,6 +32,10 @@ apply_migrations() {
         ldapmodify -Y EXTERNAL -H ldapi:/// -f $LDAP_CUSTOM_MIGRATIONS_DIR/$m
     done
 }
+
+if [ "$LDAP_SCHEMAS" != "" ]; then
+    export LDAP_EXTRA_SCHEMAS="$LDAP_EXTRA_SCHEMAS,$LDAP_SCHEMAS"
+fi
 
 for l in $(ls /ldifs 2>/dev/null); do
     cat /ldifs/$l > $LDAP_CUSTOM_LDIF_DIR/$l
