@@ -29,24 +29,30 @@ algorithm available. The available options are the following.
 - `SHA256CRYPT`
 - `SHA512CRYPT`
 
-#### 2. Ldif Migrations
+#### 2. Ldif migrations
 
 The `/ldifs` folder does not support ldif migrations (records with a `changetype`). Instead `/ldifs` can only
-add new records. If you need to modify existing records, put ldif migration files in the `/migrations` folder.
+add new records.
+
+If you need to modify existing records, put ldif migration files in the `/migrations` folder.
 
 #### 3. Support for .schema extension
 
-The `/schemas` directory can include `.ldif` schemas or `.schema` schemas. You can see some examples
-at [context/schemas](context/schemas).
+The `/schemas` directory can include `.ldif` schemas or `.schema` schemas.
+
+You can see some examples at [context/schemas](context/schemas).
 
 #### 4. Templating support
 
 The `/schemas`, `/ldifs` and `/migrations` directories all support `.ldif.tmpl` files which will be templated.
+
 You can see an example at [context/ldifs/00-organization.ldif.tmpl](context/ldifs/00-organization.ldif.tmpl).
 
 #### 5. Support for additional modules and schemas
 
 #### 6. Easily compile custom modules into the image
+
+You can see an example of this in the [Dockerfile](Dockerfile#L49)
 
 ## Compatibility
 
