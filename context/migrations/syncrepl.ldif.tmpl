@@ -4,9 +4,11 @@ changetype: modify
 add: olcModuleLoad
 olcModuleLoad: syncprov
 
-dn: olcOverlay={2}syncprov,olcDatabase={2}mdb,cn=config
+dn: olcOverlay=syncprov,olcDatabase={2}mdb,cn=config
+changetype: add
+objectClass: top
 objectClass: olcOverlayConfig
 objectClass: olcSyncProvConfig
-olcOverlay: {2}syncprov
+olcOverlay: syncprov
 olcSpCheckpoint: 100 10
 olcSpSessionLog: 100")" %>

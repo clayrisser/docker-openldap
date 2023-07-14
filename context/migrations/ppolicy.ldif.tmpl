@@ -44,21 +44,24 @@ olcPasswordHash: {$([ "$LDAP_HASH_PASSWORD" = "SSHA" ] && echo "SSHA" || \
   echo $([ "$LDAP_HASH_PASSWORD" = "MD5" ] && echo "MD5" || \
   echo "CRYPT"))}
 
-dn: olcOverlay={1}ppolicy,olcDatabase={2}mdb,cn=config
+dn: olcOverlay=ppolicy,olcDatabase={2}mdb,cn=config
 changetype: add
+objectClass: top
 objectClass: olcOverlayConfig
 objectClass: olcPPolicyConfig
-olcOverlay: {1}ppolicy
+olcOverlay: ppolicy
 olcPPolicyHashCleartext: TRUE
 olcPPolicyDefault: cn=default,ou=ppolicy,${LDAP_ROOT}
 
 dn: ou=ppolicy,${LDAP_ROOT}
 changetype: add
+objectClass: top
 objectclass: organizationalUnit
 ou: ppolicy
 
 dn: cn=default,ou=ppolicy,${LDAP_ROOT}
 changetype: add
+objectClass: top
 objectClass: device
 objectClass: pwdPolicy
 objectClass: top

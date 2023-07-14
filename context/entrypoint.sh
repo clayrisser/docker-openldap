@@ -5,7 +5,7 @@
 # File Created: 11-07-2023 13:29:55
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 14-07-2023 07:33:09
+# Last Modified: 14-07-2023 08:27:41
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
 # BitSpur (c) Copyright 2021 - 2023
@@ -22,7 +22,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 apply_migrations() {
     until ldapwhoami -Y EXTERNAL -H ldapi:/// 2>/dev/null; do
         sleep 5
@@ -37,9 +36,15 @@ if [ "$LDAP_SCHEMAS" != "" ]; then
     export LDAP_EXTRA_SCHEMAS="$LDAP_EXTRA_SCHEMAS,$LDAP_SCHEMAS"
 fi
 
-for l in $(ls /ldifs 2>/dev/null); do
-    cat /ldifs/$l > $LDAP_CUSTOM_LDIF_DIR/$l
-done
+if [ "$(ls /ldifs 2>/dev/null)" != "" ] || [ "$LDAP_SKIP_DEFAULT_TREE" = "yes" ]; then
+    for l in $(ls /ldifs 2>/dev/null); do
+        cat /ldifs/$l > $LDAP_CUSTOM_LDIF_DIR/$l
+    done
+    export LDAP_SKIP_DEFAULT_TREE="yes"
+else
+    rm -rf $LDAP_CUSTOM_LDIF_DIR
+    mkdir -p $LDAP_CUSTOM_LDIF_DIR
+fi
 for s in $(ls /schemas 2>/dev/null); do
     cat /schemas/$s > $LDAP_CUSTOM_SCHEMA_DIR/$s
 done

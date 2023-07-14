@@ -5,6 +5,8 @@ add: olcModuleLoad
 olcModuleLoad: auditlog
 
 dn: olcOverlay=auditlog,olcDatabase={2}mdb,cn=config
+changetype: add
+objectClass: top
 objectClass: olcOverlayConfig
 objectClass: olcAuditlogConfig
 olcOverlay: auditlog

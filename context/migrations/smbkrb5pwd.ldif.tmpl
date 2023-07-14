@@ -7,10 +7,12 @@ add: olcModuleLoad
 olcModuleLoad: smbkrb5pwd
 # olcModuleLoad: smbkrb5pwd_srv
 
-dn: olcOverlay={0}smbkrb5pwd,olcDatabase={2}mdb,cn=config
+dn: olcOverlay=smbkrb5pwd,olcDatabase={2}mdb,cn=config
+changetype: add
+objectClass: top
 objectClass: olcOverlayConfig
 objectClass: olcSmbKrb5PwdConfig
-olcOverlay: {0}smbkrb5pwd
+olcOverlay: smbkrb5pwd
 olcSmbKrb5PwdEnable: samba
 olcSmbKrb5PwdEnable: krb5
 olcSmbKrb5PwdMustChange: 2592012
