@@ -56,6 +56,8 @@ You can find the list of supported modules and schemas [HERE](#supported-modules
 
 You can see an example of this in the [Dockerfile](Dockerfile#L49)
 
+#### 7. Added support for slapcat command
+
 ## Compatibility
 
 his image based on the bitnami openldap image and is mostly compatible with the bitnami openldap image.
@@ -96,6 +98,8 @@ make build
    ```
 
 4. run `slapcat` or `ldapsearch` commands to test and inspect
+
+   You can reference some useful commands at [openldap-cheatsheet](openldap-cheetsheet.md)
 
 ## Supported Modules and Schemas
 
