@@ -2,6 +2,8 @@
 
 > openldap based on bitnami openldap with ppolicy, password hashing and support for ldif migrations
 
+★ ★ ★ Please star this project if you found it useful. ★ ★ ★
+
 ```sh
 docker pull registry.gitlab.com/bitspur/rock8s/docker-openldap
 ```
