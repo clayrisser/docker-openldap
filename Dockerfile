@@ -3,7 +3,7 @@
 # File Created: 15-08-2021 01:53:18
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 14-07-2023 07:34:13
+# Last Modified: 06-08-2023 12:08:52
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
 # BitSpur (c) Copyright 2021
@@ -176,5 +176,5 @@ ENV APP_VERSION="2.4.57" \
     LDAP_HASH_PASSWORD=SHA256CRYPT \
     LDAP_LOGLEVEL=256 \
     LDAP_ROOT=dc=example,dc=org \
-    LDAP_EXTRA_SCHEMAS=cosine,inetorgperson,nis \
-    LDAP_SCHEMAS=ppolicy
+    LDAP_EXTRA_SCHEMAS= \
+    LDAP_SCHEMAS=cosine,inetorgperson,misc,nis,ppolicy
