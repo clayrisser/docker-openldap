@@ -4,6 +4,8 @@
 
 ★ ★ ★ Please star this project if you found it useful. ★ ★ ★
 
+![](assets/LDAP.png)
+
 ```sh
 docker pull registry.gitlab.com/bitspur/rock8s/docker-openldap
 ```
