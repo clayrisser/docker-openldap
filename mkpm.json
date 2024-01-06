@@ -1,7 +1,7 @@
 {
   "packages": {
     "default": {
-      "docker": "0.2.0",
+      "docker": "0.3.0",
       "gnu": "0.1.0"
     }
   },
