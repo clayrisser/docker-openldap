@@ -3,7 +3,7 @@
 # File Created: 15-08-2021 01:53:18
 # Author: Clay Risser <email@clayrisser.com>
 # -----
-# Last Modified: 03-12-2021 09:24:48
+# Last Modified: 25-01-2024 04:20:43
 # Modified By: Clay Risser <email@clayrisser.com>
 # -----
 # Silicon Hills LLC (c) Copyright 2021
@@ -25,10 +25,13 @@ FROM osixia/openldap:1.5.0 as builder
 WORKDIR /tmp
 
 # setup openldap build environment
-RUN echo "deb-src http://deb.debian.org/debian buster main" >> /etc/apt/sources.list && \
+RUN echo > /etc/apt/sources.list && \
+    echo "deb-src http://deb.debian.org/debian buster main" >> /etc/apt/sources.list && \
     echo "deb-src http://security.debian.org/debian-security buster/updates main" >> /etc/apt/sources.list && \
     echo "deb-src http://deb.debian.org/debian buster-updates main" >> /etc/apt/sources.list && \
-    echo "deb-src http://ftp.debian.org/debian buster-backports main" >> /etc/apt/sources.list
+    echo "deb http://deb.debian.org/debian buster main" >> /etc/apt/sources.list && \
+    echo "deb http://security.debian.org/debian-security buster/updates main" >> /etc/apt/sources.list && \
+    echo "deb http://deb.debian.org/debian buster-updates main" >> /etc/apt/sources.list
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     apt-utils \
     build-essential \
@@ -39,7 +42,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     libssl-dev \
     make \
     unzip
-RUN apt-get build-dep slapd=2.4.57 -y
+RUN apt-get build-dep slapd -y
 
 # get confd
 RUN curl -LO https://github.com/kelseyhightower/confd/releases/download/v0.16.0/confd-0.16.0-linux-amd64 && \
